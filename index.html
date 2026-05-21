@@ -438,7 +438,7 @@ body::before {
 <!-- TITLE SCREEN -->
 <div id="title-screen">
   <div class="title-ornament">◈ &nbsp; Centre of Command Field Report &nbsp; ◈</div>
-  <h1 class="title-main title-glow">The Last Leventhian T1</h1>
+  <h1 class="title-main title-glow">The Last Leventhian T2</h1>
   <div class="title-sub">a story of what is left behind</div>
   <div class="title-divider"></div>
   <p class="title-intro">
@@ -3098,6 +3098,7 @@ function startGame() {
   gs.style.display = 'flex'; gs.style.flexDirection = 'column';
   cacheHeaderHeight();
   renderNode(state.currentNode, false, true);
+  F
   if (!musicPlaying) {
     initTracks();
     musicPlaying = true;
