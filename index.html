@@ -3091,11 +3091,23 @@ function showInterstitial() {
   document.getElementById('interstitial').style.display = 'flex';
 }
 
+function forceScrollTop() {
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
 function startGame() {
   document.getElementById('interstitial').style.display = 'none';
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex'; gs.style.flexDirection = 'column';
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  // Scroll synchronously first, then again after paint — iOS WebKit
+  // discards scrollTo called in the same frame as a display change.
+  forceScrollTop();
+  requestAnimationFrame(() => {
+    forceScrollTop();
+    requestAnimationFrame(() => { forceScrollTop(); });
+  });
   cacheHeaderHeight();
   renderNode(state.currentNode, false, true);
   if (!musicPlaying) {
