@@ -3089,27 +3089,15 @@ function getChoices(node) {
 function showInterstitial() {
   document.getElementById('title-screen').style.display = 'none';
   document.getElementById('interstitial').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function startGame() {
   document.getElementById('interstitial').style.display = 'none';
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex'; gs.style.flexDirection = 'column';
-  gs.style.opacity = '0';
-  // Setting overflow:hidden on the body kills any in-flight iOS momentum
-  // scroll and clamps scrollTop to 0 as a hard constraint, not a request.
-  // The forced reflow makes the constraint apply synchronously before
-  // renderNode runs, so no momentum animation can override it afterward.
-  document.body.style.overflowY = 'hidden';
-  void document.body.offsetHeight;
   cacheHeaderHeight();
   renderNode(state.currentNode, false, true);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.body.style.overflowY = '';
-      gs.style.opacity = '';
-    });
-  });
   if (!musicPlaying) {
     initTracks();
     musicPlaying = true;
