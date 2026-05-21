@@ -3095,8 +3095,9 @@ function startGame() {
   document.getElementById('interstitial').style.display = 'none';
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex'; gs.style.flexDirection = 'column';
+  window.scrollTo({ top: 0, behavior: 'instant' });
   cacheHeaderHeight();
-  renderNode(state.currentNode);
+  renderNode(state.currentNode, false, true);
   if (!musicPlaying) {
     initTracks();
     musicPlaying = true;
