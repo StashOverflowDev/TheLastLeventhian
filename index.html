@@ -3087,21 +3087,38 @@ function getChoices(node) {
 }
 
 function showInterstitial() {
+  document.body.style.position = 'fixed';
+  document.body.style.top = '0';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
   document.getElementById('title-screen').style.display = 'none';
   const el = document.getElementById('interstitial');
   el.style.display = 'flex';
   void el.offsetHeight;
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function startGame() {
   document.getElementById('interstitial').style.display = 'none';
+  document.body.style.position = 'fixed';
+  document.body.style.top = '0';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
   const gs = document.getElementById('game-screen');
-  gs.style.display = 'flex'; gs.style.flexDirection = 'column';
-  void gs.offsetHeight;
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
   cacheHeaderHeight();
   renderNode(state.currentNode, false, true);
+  void gs.offsetHeight;
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo({ top: 0, behavior: 'instant' });
   if (!musicPlaying) {
     initTracks();
     musicPlaying = true;
