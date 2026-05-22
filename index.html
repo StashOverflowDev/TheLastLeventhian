@@ -449,7 +449,7 @@ body::before {
     and a habit of reading everything aloud.<br><br>
     <em>This will matter more than you know.</em>
   </p>
-  <button class="start-btn" onclick="showInterstitial()">Begin</button>
+  <button class="start-btn" onclick="showInterstitial()" ontouchstart="window.scrollTo(0,0)">Begin</button>
 </div>
 
 <!-- OPENING INTERSTITIAL -->
@@ -469,7 +469,7 @@ body::before {
       do not ever beg for forgiveness.<br>
       A weak soul is amongst the most sinful that can exist.
     </div>
-    <button class="interstitial-continue" onclick="startGame()">Enter</button>
+    <button class="interstitial-continue" onclick="startGame()" ontouchstart="window.scrollTo(0,0)">Enter</button>
   </div>
 </div>
 
@@ -3087,50 +3087,46 @@ function getChoices(node) {
 }
 
 function showInterstitial() {
-  document.body.style.position = 'fixed';
-  document.body.style.top = '0';
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.getElementById('title-screen').style.display = 'none';
-  const el = document.getElementById('interstitial');
-  el.style.display = 'flex';
-  void el.offsetHeight;
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
+  // Reset scroll synchronously before any DOM change. iOS has no anchored
+  // position to restore when the display switch happens in the next frame.
   window.scrollTo({ top: 0, behavior: 'instant' });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('title-screen').style.display = 'none';
+      const el = document.getElementById('interstitial');
+      el.style.display = 'flex';
+    });
+  });
 }
 
 function startGame() {
-  document.getElementById('interstitial').style.display = 'none';
-  document.body.style.position = 'fixed';
-  document.body.style.top = '0';
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  const gs = document.getElementById('game-screen');
-  gs.style.display = 'flex';
-  gs.style.flexDirection = 'column';
-  cacheHeaderHeight();
-  renderNode(state.currentNode, false, true);
-  void gs.offsetHeight;
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
+  // Reset scroll synchronously before any DOM change, then defer all mutations
+  // to the next painted frame. This prevents iOS WebKit from anchoring against
+  // a stale scrollY when game-screen content is injected (the root cause of the
+  // title→interstitial→Ch1 scroll-down bug on iOS Safari and iOS Chrome).
   window.scrollTo({ top: 0, behavior: 'instant' });
-  if (!musicPlaying) {
-    initTracks();
-    musicPlaying = true;
-    const btn = document.getElementById('music-btn');
-    if (btn) { btn.textContent = '♩ Music on'; btn.classList.add('active'); }
-    const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
-    currentTrackId = trackId;
-    const track = tracks[trackId];
-    track.volume = 0;
-    track.play().catch(() => {});
-    fadeTrack(track, 1, 2500);
-  }
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('interstitial').style.display = 'none';
+      const gs = document.getElementById('game-screen');
+      gs.style.display = 'flex';
+      gs.style.flexDirection = 'column';
+      cacheHeaderHeight();
+      renderNode(state.currentNode, false, true);
+      if (!musicPlaying) {
+        initTracks();
+        musicPlaying = true;
+        const btn = document.getElementById('music-btn');
+        if (btn) { btn.textContent = '♩ Music on'; btn.classList.add('active'); }
+        const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
+        currentTrackId = trackId;
+        const track = tracks[trackId];
+        track.volume = 0;
+        track.play().catch(() => {});
+        fadeTrack(track, 1, 2500);
+      }
+    });
+  });
 }
 
 function renderNode(nodeId, undoMode, chapterStart) {
