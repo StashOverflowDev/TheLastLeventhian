@@ -3088,7 +3088,9 @@ function getChoices(node) {
 
 function showInterstitial() {
   document.getElementById('title-screen').style.display = 'none';
-  document.getElementById('interstitial').style.display = 'flex';
+  const el = document.getElementById('interstitial');
+  el.style.display = 'flex';
+  void el.offsetHeight;
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -3096,6 +3098,8 @@ function startGame() {
   document.getElementById('interstitial').style.display = 'none';
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex'; gs.style.flexDirection = 'column';
+  void gs.offsetHeight;
+  window.scrollTo({ top: 0, behavior: 'instant' });
   cacheHeaderHeight();
   renderNode(state.currentNode, false, true);
   if (!musicPlaying) {
