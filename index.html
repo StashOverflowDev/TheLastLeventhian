@@ -36,7 +36,7 @@ body {
   color: var(--ink);
   font-family: 'Crimson Text', Georgia, serif;
   font-size: 18px; line-height: 1.9;
-  min-height: 100vh; overflow-y: scroll;
+  overflow: hidden;
   overflow-anchor: none;
   background-image:
     radial-gradient(ellipse at 25% 15%, rgba(80,50,120,0.18) 0%, transparent 55%),
@@ -71,15 +71,17 @@ body::before {
 
 /* TITLE SCREEN */
 #title-screen {
-  min-height: 100vh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 3rem 2rem 3.5rem; position: relative; overflow: hidden;
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 3rem 2rem 3.5rem; overflow-y: auto; overflow-anchor: none;
 }
 #title-screen::before {
-  content: ''; position: absolute; inset: 0;
+  content: ''; position: fixed; inset: 0;
   background: radial-gradient(ellipse at 50% 40%, rgba(80,50,140,0.2) 0%, transparent 65%);
-  pointer-events: none;
+  pointer-events: none; z-index: 0;
 }
+#title-screen > * { position: relative; z-index: 1; flex-shrink: 0; }
+.title-spacer { flex: 1; min-height: 1.5rem; pointer-events: none; }
 
 .title-ornament {
   font-family: 'Courier Prime', monospace;
@@ -125,20 +127,26 @@ body::before {
   box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
   transition: all 0.15s ease; animation: fadeIn 3s ease; margin-bottom: 2.5rem;
 }
-.start-btn:hover {
-  color: var(--paper);
-  background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
-  border-color: var(--violet-text); transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.07) inset;
+@media (hover: hover) {
+  .start-btn:hover {
+    color: var(--paper);
+    background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+    border-color: var(--violet-text); transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.07) inset;
+  }
 }
 .start-btn:active { transform: translateY(1px); border-bottom-width: 1px; }
 
 /* INTERSTITIAL */
-#interstitial, #post-game {
-  display: none; min-height: 100vh;
-  flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem;
+#interstitial {
+  display: none; position: fixed; inset: 0; overflow-y: auto; overflow-anchor: none;
+  flex-direction: column; align-items: center; justify-content: flex-start; padding: 4rem 2rem;
 }
-.interstitial-inner, .post-game-inner { max-width: 560px; text-align: center; width: 100%; }
+#post-game {
+  display: none; position: fixed; inset: 0; overflow-y: auto; overflow-anchor: none;
+  flex-direction: column; align-items: center; justify-content: flex-start; padding: 4rem 2rem;
+}
+.interstitial-inner, .post-game-inner { max-width: 560px; text-align: center; width: 100%; margin: auto; }
 .interstitial-label {
   font-family: 'Courier Prime', monospace;
   font-size: 0.6rem; letter-spacing: 0.45em; color: var(--violet-text);
@@ -163,10 +171,12 @@ body::before {
   padding: 0.7rem 2rem; cursor: pointer; border-radius: var(--radius); transition: all 0.2s;
   opacity: 0; animation: fadeIn 1s ease 2.5s forwards;
 }
-.interstitial-continue:hover { color: var(--violet-text); border-color: var(--violet-dim); }
+@media (hover: hover) {
+  .interstitial-continue:hover { color: var(--violet-text); border-color: var(--violet-dim); }
+}
 
 /* GAME SCREEN */
-#game-screen { min-height: 100vh; flex-direction: column; }
+#game-screen { display: none; position: fixed; inset: 0; overflow-y: auto; overflow-anchor: none; flex-direction: column; }
 
 /* HEADER — two rows on all sizes for consistency, compact */
 .game-header {
@@ -331,10 +341,14 @@ body::before {
   cursor: pointer; transition: all 0.18s ease; border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
 }
-.choice-btn:hover {
-  background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
-  border-color: var(--violet-dim); color: var(--ink); transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.05) inset;
+@media (hover: hover) {
+  .choice-btn:hover {
+    background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+    border-color: var(--violet-dim); color: var(--ink); transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.05) inset;
+  }
+  .undo-btn:hover { color: var(--violet-text); border-color: var(--border-light); }
+  .skip-btn:hover { color: var(--violet-text); border-color: var(--border-light); }
 }
 .choice-btn:active { transform: translateY(0); border-bottom-width: 1px; }
 .choice-number {
@@ -350,7 +364,6 @@ body::before {
   color: var(--ink-faint); background: transparent; border: 1px solid var(--border);
   padding: 0.4rem 1rem; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; text-transform: uppercase;
 }
-.undo-btn:hover { color: var(--violet-text); border-color: var(--border-light); }
 
 .skip-btn {
   display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; margin-left: 0.5rem;
@@ -358,7 +371,6 @@ body::before {
   color: var(--ink-faint); background: transparent; border: 1px solid var(--border);
   padding: 0.4rem 1rem; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; text-transform: uppercase;
 }
-.skip-btn:hover { color: var(--violet-text); border-color: var(--border-light); }
 
 /* INVENTORY */
 .inventory-bar { margin-top: 3.5rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
@@ -437,6 +449,7 @@ body::before {
 
 <!-- TITLE SCREEN -->
 <div id="title-screen">
+  <div class="title-spacer"></div>
   <div class="title-ornament">◈ &nbsp; Centre of Command Field Report &nbsp; ◈</div>
   <h1 class="title-main title-glow">The Last Leventhian</h1>
   <div class="title-sub">a story of what is left behind</div>
@@ -449,7 +462,8 @@ body::before {
     and a habit of reading everything aloud.<br><br>
     <em>This will matter more than you know.</em>
   </p>
-  <button class="start-btn" onclick="showInterstitial()" ontouchstart="window.scrollTo(0,0)">Begin</button>
+  <button class="start-btn" onclick="showInterstitial()">Begin</button>
+  <div class="title-spacer"></div>
 </div>
 
 <!-- OPENING INTERSTITIAL -->
@@ -469,7 +483,7 @@ body::before {
       do not ever beg for forgiveness.<br>
       A weak soul is amongst the most sinful that can exist.
     </div>
-    <button class="interstitial-continue" onclick="startGame()" ontouchstart="window.scrollTo(0,0)">Enter</button>
+    <button class="interstitial-continue" onclick="startGame()">Enter</button>
   </div>
 </div>
 
@@ -536,7 +550,7 @@ body::before {
 </div>
 
 <!-- PRE-CHAPTER 4 INTERSTITIAL -->
-<div id="pre-ch4" style="display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem;">
+<div id="pre-ch4" style="display:none; position:fixed; inset:0; overflow-y:auto; overflow-anchor:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:4rem 2rem; background:var(--bg)">
   <div class="interstitial-inner">
     <div class="interstitial-label">◈ &nbsp; from an old journal &nbsp; ◈</div>
     <div class="interstitial-text">
@@ -3087,46 +3101,32 @@ function getChoices(node) {
 }
 
 function showInterstitial() {
-  // Reset scroll synchronously before any DOM change. iOS has no anchored
-  // position to restore when the display switch happens in the next frame.
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.getElementById('title-screen').style.display = 'none';
-      const el = document.getElementById('interstitial');
-      el.style.display = 'flex';
-    });
-  });
+  document.getElementById('title-screen').style.display = 'none';
+  const el = document.getElementById('interstitial');
+  el.scrollTop = 0;
+  el.style.display = 'flex';
 }
 
 function startGame() {
-  // Reset scroll synchronously before any DOM change, then defer all mutations
-  // to the next painted frame. This prevents iOS WebKit from anchoring against
-  // a stale scrollY when game-screen content is injected (the root cause of the
-  // title→interstitial→Ch1 scroll-down bug on iOS Safari and iOS Chrome).
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.getElementById('interstitial').style.display = 'none';
-      const gs = document.getElementById('game-screen');
-      gs.style.display = 'flex';
-      gs.style.flexDirection = 'column';
-      cacheHeaderHeight();
-      renderNode(state.currentNode, false, true);
-      if (!musicPlaying) {
-        initTracks();
-        musicPlaying = true;
-        const btn = document.getElementById('music-btn');
-        if (btn) { btn.textContent = '♩ Music on'; btn.classList.add('active'); }
-        const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
-        currentTrackId = trackId;
-        const track = tracks[trackId];
-        track.volume = 0;
-        track.play().catch(() => {});
-        fadeTrack(track, 1, 2500);
-      }
-    });
-  });
+  document.getElementById('interstitial').style.display = 'none';
+  const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  cacheHeaderHeight();
+  renderNode(state.currentNode, false, true);
+  if (!musicPlaying) {
+    initTracks();
+    musicPlaying = true;
+    const btn = document.getElementById('music-btn');
+    if (btn) { btn.textContent = '♩ Music on'; btn.classList.add('active'); }
+    const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
+    currentTrackId = trackId;
+    const track = tracks[trackId];
+    track.volume = 0;
+    track.play().catch(() => {});
+    fadeTrack(track, 1, 2500);
+  }
 }
 
 function renderNode(nodeId, undoMode, chapterStart) {
@@ -3251,18 +3251,19 @@ function renderNode(nodeId, undoMode, chapterStart) {
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      const gs = document.getElementById('game-screen');
       if (chapterStart) {
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        gs.scrollTop = 0;
       } else if (undoMode) {
         const cb = document.getElementById('choices-block');
         if (cb) {
-          window.scrollTo({ top: cb.getBoundingClientRect().top + window.scrollY - headerHeight - 16, behavior: 'smooth' });
+          gs.scrollTo({ top: cb.getBoundingClientRect().top + gs.scrollTop - gs.getBoundingClientRect().top - headerHeight - 16, behavior: 'smooth' });
         }
       } else if (sceneHistory.length === 0) {
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        gs.scrollTop = 0;
       } else {
         const el = document.getElementById('current-scene');
-        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerHeight - 28, behavior: 'smooth' });
+        gs.scrollTo({ top: el.getBoundingClientRect().top + gs.scrollTop - gs.getBoundingClientRect().top - headerHeight - 28, behavior: 'smooth' });
       }
     });
   });
@@ -3315,8 +3316,8 @@ function showPostGame() {
     void el.offsetWidth;
     el.style.animation = anim;
   });
+  document.getElementById('post-game').scrollTop = 0;
   document.getElementById('post-game').style.display = 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── END CARD (after post-Ch3 interstitial) ─────────────────────
@@ -3349,7 +3350,7 @@ function showEndCard() {
         <div class="end-card-donate-placeholder">◈ &nbsp; support this project &nbsp; ◈</div>
       </div>
     </div>`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('game-screen').scrollTop = 0;
 }
 
 // ── PRE-CH4 INTERSTITIAL ───────────────────────────────────────
@@ -3364,8 +3365,8 @@ function startChapter4() {
   el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease 0.3s forwards';
   el.querySelector('.interstitial-text').style.animation = 'fadeIn 1.5s ease 0.8s forwards';
   el.querySelector('.interstitial-continue').style.animation = 'fadeIn 1s ease 2.5s forwards';
+  el.scrollTop = 0;
   el.style.display = 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function beginChapter4() {
@@ -3408,8 +3409,8 @@ function showLeventhianInterstitial() {
     void btn.offsetWidth;
     btn.style.animation = 'fadeIn 1s ease 5s forwards';
   }
+  el.scrollTop = 0;
   el.style.display = 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function beginChapter6() {
@@ -3442,8 +3443,8 @@ function showPostCh6() {
     void el2.offsetWidth;
     el2.style.animation = anim;
   });
+  el.scrollTop = 0;
   el.style.display = 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function showCh6EndCard() {
@@ -3482,7 +3483,7 @@ function showCh6EndCard() {
         <div class="end-card-donate-placeholder">◈ &nbsp; support this project &nbsp; ◈</div>
       </div>
     </div>`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('game-screen').scrollTop = 0;
 }
 
 
@@ -3537,14 +3538,15 @@ function restartGame() {
   document.getElementById('post-game').style.display = 'none';
   document.getElementById('leventhian-interstitial').style.display = 'none';
   document.getElementById('post-ch6').style.display = 'none';
-  document.getElementById('title-screen').style.display = 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const ts = document.getElementById('title-screen');
+  ts.scrollTop = 0;
+  ts.style.display = 'flex';
 }
 </script>
 
 <!-- LEVENTHIAN INTERSTITIAL (Ch5 → Ch6) -->
-<div id="leventhian-interstitial" style="display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem;">
-  <div style="max-width:560px; width:100%;">
+<div id="leventhian-interstitial" style="display:none; position:fixed; inset:0; overflow-y:auto; overflow-anchor:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:4rem 2rem; background:var(--bg)">
+  <div style="max-width:560px; width:100%; margin:auto;">
     <div class="lev-section" style="opacity:0; font-family:'Crimson Text',Georgia,serif; font-size:1.05rem; line-height:2.2; color:var(--violet-text); margin-bottom:2rem;">
       <p>The lake is still.</p>
       <p>It is always still. I have made it still. This is not something I chose; stillness arrived with me the way a shadow arrives, attached, not asked for. The water holds my shape even when I am not in it. When I surface, briefly, I leave a stillness behind that lasts for hours.</p>
@@ -3603,7 +3605,7 @@ function restartGame() {
 
 
 <!-- POST-CH6 INTERSTITIAL (Lex's first letter) -->
-<div id="post-ch6" style="display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem;">
+<div id="post-ch6" style="display:none; position:fixed; inset:0; overflow-y:auto; overflow-anchor:none; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem; background:var(--bg)">
   <div class="interstitial-inner">
     <div class="interstitial-label" id="pch6-label">◈ &nbsp; from an old journal &nbsp; ◈</div>
     <div class="interstitial-text" id="pch6-text">
