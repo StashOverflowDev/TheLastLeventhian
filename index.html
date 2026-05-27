@@ -180,13 +180,14 @@ body::before {
 /* GAME SCREEN */
 #game-screen { display: none; position: fixed; inset: 0; overflow-y: auto; overflow-anchor: none; flex-direction: column; }
 
-/* HEADER — two rows on all sizes for consistency, compact */
+/* HEADER — root-level fixed, always on top of everything */
 .game-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 55; /* above panel (40), game-screen (auto), title/interstitials */
   border-bottom: 2px solid var(--border);
   padding: 0.5rem 1.2rem;
   background: linear-gradient(180deg, #181428 0%, #141020 100%);
   box-shadow: 0 2px 14px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
-  position: sticky; top: 0; z-index: 50;
 }
 .game-header-row1 {
   display: flex; align-items: center; justify-content: space-between;
@@ -194,7 +195,16 @@ body::before {
 }
 .game-header-row2 {
   display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+  /* Prevent row collapsing to zero during typewriter erase phase */
+  min-height: 1.4em;
 }
+.header-location-text {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.64rem; letter-spacing: 0.18em; color: var(--ink-dim);
+  text-transform: uppercase; flex: 1; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.header-location-prefix { color: var(--violet-text); }
 .game-header-title {
   font-family: 'Courier Prime', monospace;
   font-size: 0.68rem; letter-spacing: 0.22em; color: var(--ink-dim);
@@ -203,46 +213,12 @@ body::before {
   margin-right: 0.6rem;
 }
 .game-header-title span { color: var(--violet-text); }
-.header-location-text {
-  font-family: 'Courier Prime', monospace;
-  font-size: 0.64rem; letter-spacing: 0.18em; color: var(--ink-dim);
-  text-transform: uppercase; flex: 1; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
-}
-.header-location-text::before {
-  content: 'Location: ';
-  color: var(--violet-text);
-}
-.music-btn {
-  font-family: 'Courier Prime', monospace;
-  font-size: 0.6rem; letter-spacing: 0.18em; color: var(--ink-dim);
-  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
-  border: 1px solid var(--border-light); border-bottom: 2px solid var(--border);
-  padding: 0.26rem 0.65rem; cursor: pointer; border-radius: var(--radius);
-  transition: all 0.2s; text-transform: uppercase; white-space: nowrap;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0;
-  min-width: 6.6rem; text-align: center;
-  -webkit-tap-highlight-color: transparent;
-}
-@media (hover: hover) {
-  .music-btn:hover { color: var(--violet-text); border-color: var(--violet-dim); }
-}
-.music-btn.active { color: var(--violet-text); border-color: var(--violet-dim); }
-
-.library-btn {
-  font-family: 'Courier Prime', monospace;
-  font-size: 0.6rem; letter-spacing: 0.18em; color: var(--ink-faint);
-  background: transparent;
-  border: 1px dashed var(--border); border-bottom: 1px dashed var(--border);
-  padding: 0.26rem 0.65rem; cursor: default; border-radius: var(--radius);
-  text-transform: uppercase; white-space: nowrap;
-  opacity: 0.9; flex-shrink: 0;
-  min-width: 6.6rem; text-align: center;
-}
 
 .game-content {
   max-width: 720px; width: 100%; margin: 0 auto;
   padding: 3.5rem 2rem 7rem; flex: 1;
+  /* Extra top padding clears the fixed header (~56px typical height) */
+  padding-top: calc(3.5rem + 56px);
 }
 
 /* CHAPTER HEADING */
@@ -423,6 +399,18 @@ body::before {
   border-radius: var(--radius); font-family: 'Courier Prime', monospace;
   font-size: 0.6rem; letter-spacing: 0.3em; color: var(--ink-faint);
   text-transform: uppercase; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+html.font-large .end-card-donate-placeholder {
+  font-size: 10px !important; letter-spacing: 0.15em !important;
+}
+html.font-large .end-card-title { font-size: 1.6rem !important; }
+html.font-large .end-card-ornament { font-size: 10px !important; letter-spacing: 0.25em !important; }
+/* Lock interstitial continue button — prevents "CONTINUE — CHAPTER VI" wrapping on small screens */
+html.font-large .interstitial-continue {
+  font-size: 10px !important;
+  letter-spacing: 0.18em !important;
+  padding: 0.7rem 1.4rem !important;
 }
 
 /* ANIMATIONS */
@@ -437,14 +425,242 @@ body::before {
 .title-glow { animation: titleGlow 6s ease-in-out infinite; }
 
 @media (max-width: 600px) {
-  .game-content { padding: 2rem 1.1rem 5rem; }
+  .game-content { padding: 2rem 1.1rem 5rem; padding-top: calc(2rem + 56px); }
   .game-header { padding: 0.45rem 1rem; }
   .ascii-art { font-size: 0.5rem; overflow-x: hidden; }
   .choice-btn { font-size: 0.95rem; }
   .scene-narrative { font-size: 1rem; }
   .end-card { padding: 2.5rem 1.2rem; }
   .skip-btn { margin-left: 0; }
+  /* Settings mobile polish */
+  .settings-panel-inner { padding: 2rem 20px 3rem; gap: 2rem; }
+  .settings-row { margin-bottom: 1.2rem; }
+  .settings-toggle { padding: 0.65rem 0.9rem; }
+  .settings-exit-btn { padding: 1.1rem; }
 }
+
+/* ── SETTINGS BUTTON ─────────────────────────────────────────── */
+.settings-btn {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.6rem; letter-spacing: 0.12em; color: var(--ink-dim);
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
+  border: 1px solid var(--border-light); border-bottom: 2px solid var(--border);
+  padding: 0 0.45rem;
+  height: 2em;
+  cursor: pointer; border-radius: var(--radius);
+  transition: all 0.2s; text-transform: uppercase; white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0;
+  min-width: 0; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;
+  line-height: 1;
+  box-sizing: border-box;
+}
+.settings-btn .settings-icon {
+  font-size: 1em; line-height: 1;
+}
+@media (hover: hover) {
+  .settings-btn:hover { color: var(--violet-text); border-color: var(--violet-dim); }
+}
+.settings-btn.active { color: var(--violet-text); border-color: var(--violet-dim); }
+
+/* Begin button: match border-bottom to side borders (--violet-dim) in all themes */
+.start-btn { border-bottom-color: var(--violet-dim); }
+
+/* ── SETTINGS PANEL ──────────────────────────────────────────── */
+#settings-panel {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 40; /* below game-header at z-index 55 */
+  overflow-y: auto; overflow-anchor: none;
+  flex-direction: column;
+  align-items: stretch;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+#settings-panel.open { display: flex; }
+#settings-panel.visible { opacity: 1; }
+
+.settings-panel-inner {
+  max-width: 720px; width: 100%;
+  margin: auto; /* centers vertically when content shorter than viewport */
+  /* padding-top set dynamically in JS to match header height */
+  padding: 2.5rem 2rem 4rem;
+  display: flex; flex-direction: column; gap: 2.4rem;
+}
+
+/* Close button sits inside content block, top-right */
+.settings-close-row {
+  display: flex; justify-content: flex-end;
+  margin-bottom: -0.6rem;
+}
+.settings-close-btn {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-faint); background: transparent;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.55rem 1.1rem; cursor: pointer; transition: all 0.2s;
+  min-height: 44px; min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .settings-close-btn:hover { color: var(--violet-text); border-color: var(--violet-dim); }
+}
+
+.settings-section-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.58rem; letter-spacing: 0.45em; text-transform: uppercase;
+  color: var(--violet-text); margin-bottom: 0.9rem;
+  padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1rem;
+}
+.settings-row:last-child { margin-bottom: 0; }
+.settings-row-label {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem; color: var(--ink-dim);
+}
+
+/* Toggle button group — matches game choice button aesthetic */
+.settings-toggle-group { display: flex; gap: 0.5rem; }
+.settings-toggle {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.68rem; letter-spacing: 0.1em;
+  color: var(--violet-dim);  /* inactive: violet — reads as "not selected" */
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
+  border: 1px solid var(--border); border-bottom: 2px solid var(--border);
+  padding: 0.55rem 1rem; cursor: pointer; border-radius: var(--radius);
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px; min-width: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+/* Active state: gold/ink text + border highlight, uniform border-bottom */
+.settings-toggle[aria-pressed="true"] {
+  color: var(--ink-dim);     /* active: gold — reads as "currently selected" */
+  border-color: var(--border-light);
+  border-bottom: 2px solid var(--border-light); /* consistent on all four sides */
+  background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+@media (hover: hover) {
+  .settings-toggle:hover { color: var(--ink-dim); border-color: var(--border-light); }
+}
+
+/* Exit to library button */
+.settings-exit-btn {
+  width: 100%; padding: 1rem;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ink-dim);
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
+  border: 1px solid var(--border-light); border-bottom: 2px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .settings-exit-btn:hover {
+    color: var(--violet-text); border-color: var(--violet-dim);
+    background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+  }
+}
+
+/* ── LIGHT THEME ─────────────────────────────────────────────── */
+body.theme-light {
+  --bg:           #f2e9d8;   /* warm parchment */
+  --bg2:          #e8dcc6;   /* slightly darker parchment — quote boxes, cards */
+  --bg3:          #ded0b4;   /* button base */
+  --bg4:          #d2c2a0;   /* button hover */
+  --violet-text:  #5a3a8a;   /* rich purple on light */
+  --violet-dim:   #7a5aaa;
+  --violet-faint: #c8b0e8;
+  --ink:          #1e1628;   /* deep charcoal — main text */
+  --ink-dim:      #3a2e48;   /* secondary text */
+  --ink-faint:    #7a6a88;   /* muted labels */
+  --border:       #c4b49a;
+  --border-light: #a89070;
+  background-image:
+    radial-gradient(ellipse at 25% 15%, rgba(160,120,220,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 85%, rgba(120,100,180,0.04) 0%, transparent 50%);
+}
+body.theme-light .game-header {
+  background: linear-gradient(180deg, #ede0cc 0%, #e4d4b8 100%);
+}
+body.theme-light #settings-panel { background: var(--bg); }
+body.theme-light .found-doc-inner {
+  background: var(--bg2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) inset;
+}
+body.theme-light .memory-flash { background: rgba(90,58,138,0.04); }
+body.theme-light .inventory-item { background: var(--bg2); }
+body.theme-light .choice-btn {
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
+}
+@media (hover: hover) {
+  body.theme-light .choice-btn:hover {
+    background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+  }
+}
+body.theme-light .settings-toggle {
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg2) 100%);
+}
+body.theme-light .settings-toggle[aria-pressed="true"] {
+  background: linear-gradient(180deg, var(--bg4) 0%, var(--bg3) 100%);
+}
+body.theme-light .past-scene { opacity: 0.5; }
+body.theme-light body::before { opacity: 0; }
+
+/* Light mode scrollbar */
+@media (pointer: fine) {
+  body.theme-light ::-webkit-scrollbar-track {
+    background: #e4d4b8; border-left: 1px solid var(--border);
+  }
+  body.theme-light ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a89070, #8a7050);
+    border: 2px solid #e4d4b8; border-radius: 3px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  body.theme-light ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #c4a880, #a08060);
+  }
+  body.theme-light ::-webkit-scrollbar-button {
+    background: #ede0cc; border: 1px solid var(--border);
+  }
+  body.theme-light ::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M5 0L10 7H0z' fill='%235a3a8a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center;
+  }
+  body.theme-light ::-webkit-scrollbar-button:vertical:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M5 7L0 0H10z' fill='%235a3a8a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center;
+  }
+  body.theme-light ::-webkit-scrollbar-button:hover { background-color: #d8c8a8; }
+}
+
+/* ── FONT SIZE CLASSES ───────────────────────────────────────── */
+/* Target <html> so rem-based children scale correctly */
+html.font-large { font-size: 19px; }
+
+/* Lock header font sizes to original px equivalents — rem would scale with html font-size */
+html.font-large .game-header-title { font-size: 11px !important; }
+html.font-large .header-location-text { font-size: 10px !important; }
+html.font-large .settings-btn { font-size: 10px !important; letter-spacing: 0.1em !important; }
+/* Allow title ornament to wrap on small screens with large font */
+html.font-large .title-ornament { white-space: normal; letter-spacing: 0.12em; }
+html.font-large .ascii-art {
+  font-size: clamp(9px, 1.3vw, 12px) !important;
+  line-height: 1.3 !important;
+}
+@media (max-width: 600px) {
+  html.font-large .ascii-art { font-size: 8px !important; }
+}
+
 </style>
 </head>
 <body>
@@ -489,18 +705,19 @@ body::before {
   </div>
 </div>
 
+<!-- GAME HEADER (root-level fixed — above all panels) -->
+<div id="game-header" class="game-header" style="display:none;">
+  <div class="game-header-row1">
+    <div class="game-header-title">The Last Leventhian<span id="header-chapter">, Ch. I</span></div>
+    <button class="settings-btn" id="settings-btn" onclick="toggleSettingsPanel()" aria-label="Open settings" aria-expanded="false"><span class="settings-icon">⚙</span> Sys.Cfg</button>
+  </div>
+  <div class="game-header-row2">
+    <div class="header-location-text" id="header-location"><span class="header-location-prefix" id="header-location-prefix">Location: </span><span id="header-location-value">The Abandoned Palace</span></div>
+  </div>
+</div>
+
 <!-- GAME SCREEN -->
 <div id="game-screen" style="display:none;">
-  <div class="game-header">
-    <div class="game-header-row1">
-      <div class="game-header-title">The Last Leventhian<span id="header-chapter">, Ch. I</span></div>
-      <button class="library-btn" disabled>← Library</button>
-    </div>
-    <div class="game-header-row2">
-      <div class="header-location-text" id="header-location">The Abandoned Palace</div>
-      <button class="music-btn" id="music-btn" onclick="toggleMusic()">♩ Music off</button>
-    </div>
-  </div>
   <div class="game-content">
     <div id="scene-history"></div>
     <div id="current-scene"></div>
@@ -598,7 +815,7 @@ let sceneHistory = [];
 let sceneHistoryRenderedCount = 0;
 let headerHeight = 0;
 function cacheHeaderHeight() {
-  const h = document.querySelector('.game-header');
+  const h = document.getElementById('game-header');
   if (h) headerHeight = h.offsetHeight;
 }
 window.addEventListener('resize', cacheHeaderHeight);
@@ -713,32 +930,8 @@ function stopAllMusic() {
   Object.values(tracks).forEach(t => {
     try { t.pause(); t.currentTime = 0; t.volume = 0; } catch(e) {}
   });
-  const btn = document.getElementById('music-btn');
-  if (btn) { btn.textContent = '♩ Music off'; btn.classList.remove('active'); }
 }
 
-function toggleMusic() {
-  initTracks();
-  const btn = document.getElementById('music-btn');
-  if (!musicPlaying) {
-    musicPlaying = true;
-    btn.textContent = '♩ Music on'; btn.classList.add('active');
-    const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
-    currentTrackId = trackId;
-    const track = tracks[trackId];
-    track.volume = 0;
-    track.play().catch(() => {});
-    fadeTrack(track, 1, 2500);
-  } else {
-    musicPlaying = false;
-    btn.textContent = '♩ Music off'; btn.classList.remove('active');
-    const track = tracks[currentTrackId];
-    if (track) {
-      fadeTrack(track, 0, 1500, () => { track.pause(); track.currentTime = 0; });
-    }
-    currentTrackId = null;
-  }
-}
 
 
 // ── ASCII ART ─────────────────────────────────────────────────
@@ -3115,13 +3308,17 @@ function startGame() {
   gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
+  // Show root-level fixed header
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
   cacheHeaderHeight();
+  // Sync game-content padding-top to actual header height
+  const gc = gs.querySelector('.game-content');
+  if (gc && headerHeight) gc.style.paddingTop = (headerHeight + 40) + 'px';
   renderNode(state.currentNode, false, true);
   if (!musicPlaying) {
     initTracks();
     musicPlaying = true;
-    const btn = document.getElementById('music-btn');
-    if (btn) { btn.textContent = '♩ Music on'; btn.classList.add('active'); }
     const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
     currentTrackId = trackId;
     const track = tracks[trackId];
@@ -3137,7 +3334,13 @@ function renderNode(nodeId, undoMode, chapterStart) {
   if (node.onEnter) node.onEnter();
   state.currentNode = nodeId;
   if (node.headerChapter) document.getElementById('header-chapter').textContent = node.headerChapter;
-  if (node.location) document.getElementById('header-location').textContent = node.location;
+  if (node.location) {
+    const valEl = document.getElementById('header-location-value');
+    if (valEl) {
+      valEl.textContent = node.location;
+      valEl.setAttribute('data-location', node.location);
+    }
+  }
   startTrackForNode(nodeId);
 
   // Incrementally append only newly completed nodes to scene-history rather
@@ -3304,6 +3507,8 @@ function undoChoice() {
 function showPostGame() {
   stopAllMusic();
   document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
   const animEls = [
     { id: 'pg-label',  anim: 'fadeIn 1s ease 0.3s forwards',      startOpacity: '0' },
     { id: 'pg-ascii',  anim: 'fadeInDim 2s ease 0.5s forwards',    startOpacity: '0' },
@@ -3327,6 +3532,8 @@ function showEndCard() {
   document.getElementById('post-game').style.display = 'none';
   document.getElementById('game-screen').style.display = 'flex';
   document.getElementById('game-screen').style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
   document.getElementById('scene-history').innerHTML = '';
   sceneHistoryRenderedCount = 0;
   document.getElementById('inventory-display').innerHTML = '';
@@ -3358,6 +3565,8 @@ function showEndCard() {
 // ── PRE-CH4 INTERSTITIAL ───────────────────────────────────────
 function startChapter4() {
   document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
   const el = document.getElementById('pre-ch4');
   el.querySelectorAll('.interstitial-label, .interstitial-text, .interstitial-continue').forEach(child => {
     child.style.animation = 'none';
@@ -3376,6 +3585,8 @@ function beginChapter4() {
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('scene-history').innerHTML = '';
@@ -3397,6 +3608,8 @@ function beginChapter5() {
 // ── LEVENTHIAN INTERSTITIAL ────────────────────────────────────
 function showLeventhianInterstitial() {
   document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
   const el = document.getElementById('leventhian-interstitial');
   el.querySelectorAll('.lev-section').forEach((s, i) => {
     s.style.animation = 'none';
@@ -3420,6 +3633,8 @@ function beginChapter6() {
   const gs = document.getElementById('game-screen');
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('scene-history').innerHTML = '';
@@ -3431,6 +3646,8 @@ function beginChapter6() {
 function showPostCh6() {
   stopAllMusic();
   document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
   const el = document.getElementById('post-ch6');
   const animEls = [
     { id:'pch6-label', anim:'fadeIn 1s ease 0.3s forwards' },
@@ -3453,6 +3670,8 @@ function showCh6EndCard() {
   document.getElementById('post-ch6').style.display = 'none';
   document.getElementById('game-screen').style.display = 'flex';
   document.getElementById('game-screen').style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
   document.getElementById('scene-history').innerHTML = '';
   sceneHistoryRenderedCount = 0;
   document.getElementById('inventory-display').innerHTML = '';
@@ -3540,6 +3759,11 @@ function restartGame() {
   document.getElementById('post-game').style.display = 'none';
   document.getElementById('leventhian-interstitial').style.display = 'none';
   document.getElementById('post-ch6').style.display = 'none';
+  // Close settings panel if open
+  const panel = document.getElementById('settings-panel');
+  if (panel) { panel.classList.remove('open', 'visible'); settingsPanelOpen = false; }
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
   const ts = document.getElementById('title-screen');
   ts.scrollTop = 0;
   ts.style.display = 'flex';
@@ -3623,6 +3847,333 @@ function restartGame() {
 <!-- CH6 END CARD -->
 <div id="ch6-end-card" style="display:none;">
 </div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" role="dialog" aria-label="Settings and accessibility options">
+  <div class="settings-panel-inner">
+
+    <div class="settings-close-row">
+      <button class="settings-close-btn" onclick="toggleSettingsPanel()" aria-label="Close settings">✕ Close</button>
+    </div>
+
+    <!-- AUDIO -->
+    <div>
+      <div class="settings-section-label">◈ &nbsp; Audio</div>
+      <div class="settings-row">
+        <span class="settings-row-label">Ambient music</span>
+        <div class="settings-toggle-group">
+          <button
+            id="toggle-music"
+            class="settings-toggle"
+            aria-label="Toggle ambient music"
+            aria-pressed="true"
+            onclick="settingsToggleMusic()">♩ On</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUALS -->
+    <div>
+      <div class="settings-section-label">◈ &nbsp; Visuals</div>
+      <div class="settings-row">
+        <span class="settings-row-label">Colour theme</span>
+        <div class="settings-toggle-group">
+          <button
+            id="toggle-light"
+            class="settings-toggle"
+            aria-label="Switch to light theme"
+            aria-pressed="false"
+            onclick="setTheme('light')">☀ Light</button>
+          <button
+            id="toggle-dark"
+            class="settings-toggle"
+            aria-label="Switch to dark theme"
+            aria-pressed="true"
+            onclick="setTheme('dark')">☾ Dark</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-label">Font size</span>
+        <div class="settings-toggle-group">
+          <button
+            id="toggle-font-small"
+            class="settings-toggle"
+            aria-label="Small font size"
+            aria-pressed="true"
+            onclick="setFontSize('small')">A−</button>
+          <button
+            id="toggle-font-large"
+            class="settings-toggle"
+            aria-label="Large font size"
+            aria-pressed="false"
+            onclick="setFontSize('large')">A+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div>
+      <div class="settings-section-label">◈ &nbsp; System</div>
+      <div class="settings-row">
+        <button class="settings-exit-btn" onclick="exitToLibrary()" aria-label="Exit to library">
+          ⬅ Exit to Library
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── SETTINGS STATE ────────────────────────────────────────────
+const STORAGE_KEYS = { theme: 'tll_theme', fontSize: 'tll_fontsize', music: 'tll_music' };
+
+// Defaults: dark theme, small font, music ON
+// Only write defaults to localStorage on first-ever visit (key absent).
+function loadPreferences() {
+  const theme    = localStorage.getItem(STORAGE_KEYS.theme)    || 'dark';
+  const fontSize = localStorage.getItem(STORAGE_KEYS.fontSize) || 'small';
+  // Music pref: '1' = on, '0' = off. Default ON (null → treat as '1')
+  const musicPref = localStorage.getItem(STORAGE_KEYS.music);
+
+  // Apply without triggering toasts (silent = true)
+  applyTheme(theme, true);
+  applyFontSize(fontSize, true);
+
+  // Sync the music toggle button state to stored pref.
+  // Actual music playback is controlled by the existing music system
+  // (auto-starts in startGame). If user had turned it off before, stop it.
+  if (musicPref === '0') {
+    // Defer until after startGame potentially starts the track
+    setTimeout(() => { if (musicPlaying) stopAllMusic(); }, 100);
+    setMusicToggleUI(false);
+  } else {
+    setMusicToggleUI(true);
+  }
+}
+
+// ── SETTINGS PANEL OPEN / CLOSE ───────────────────────────────
+let settingsPanelOpen = false;
+function toggleSettingsPanel() {
+  settingsPanelOpen = !settingsPanelOpen;
+  const panel = document.getElementById('settings-panel');
+  const btn   = document.getElementById('settings-btn');
+  if (settingsPanelOpen) {
+    // Set panel padding-top to match actual header height
+    const hdr = document.getElementById('game-header');
+    const hdrH = hdr ? hdr.offsetHeight : 56;
+    const inner = panel.querySelector('.settings-panel-inner');
+    if (inner) inner.style.paddingTop = (hdrH + 24) + 'px';
+    panel.classList.add('open');
+    panel.scrollTop = 0;
+    // Fade in on next frame so display:flex is committed first
+    requestAnimationFrame(() => panel.classList.add('visible'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-expanded', 'true');
+  } else {
+    panel.classList.remove('visible');
+    btn.classList.remove('active');
+    btn.setAttribute('aria-expanded', 'false');
+    // Cancel any in-progress ticker and restore location text immediately
+    _twCancel();
+    const valEl = document.getElementById('header-location-value');
+    const pfxEl = document.getElementById('header-location-prefix');
+    if (valEl) {
+      const saved = valEl.getAttribute('data-location');
+      if (saved) valEl.textContent = saved;
+    }
+    if (pfxEl) pfxEl.style.display = '';
+    // Re-hide panel after fade completes
+    setTimeout(() => {
+      if (!settingsPanelOpen) panel.classList.remove('open');
+    }, 240);
+  }
+}
+
+// ── THEME ─────────────────────────────────────────────────────
+function setTheme(theme, silent) {
+  applyTheme(theme, silent);
+  localStorage.setItem(STORAGE_KEYS.theme, theme);
+}
+function applyTheme(theme, silent) {
+  const body = document.body;
+  if (theme === 'light') {
+    body.classList.add('theme-light');
+    document.getElementById('toggle-light').setAttribute('aria-pressed', 'true');
+    document.getElementById('toggle-dark').setAttribute('aria-pressed', 'false');
+    if (!silent) showTicker('Sabrina took off her shades.');
+  } else {
+    body.classList.remove('theme-light');
+    document.getElementById('toggle-light').setAttribute('aria-pressed', 'false');
+    document.getElementById('toggle-dark').setAttribute('aria-pressed', 'true');
+    if (!silent) showTicker('Sabrina put her shades back on.');
+  }
+}
+
+// ── FONT SIZE ─────────────────────────────────────────────────
+function setFontSize(size, silent) {
+  applyFontSize(size, silent);
+  localStorage.setItem(STORAGE_KEYS.fontSize, size);
+}
+function applyFontSize(size, silent) {
+  // Save scroll ratio before font change causes reflow
+  const gs = document.getElementById('game-screen');
+  const scrollRatio = gs && gs.scrollHeight > 0 ? gs.scrollTop / gs.scrollHeight : 0;
+
+  const html = document.documentElement;
+  if (size === 'large') {
+    html.classList.add('font-large');
+    document.getElementById('toggle-font-large').setAttribute('aria-pressed', 'true');
+    document.getElementById('toggle-font-small').setAttribute('aria-pressed', 'false');
+    if (!silent) showTicker('Sabrina leans in closer to read.');
+  } else {
+    html.classList.remove('font-large');
+    document.getElementById('toggle-font-large').setAttribute('aria-pressed', 'false');
+    document.getElementById('toggle-font-small').setAttribute('aria-pressed', 'true');
+    if (!silent) showTicker('Sabrina steps back a bit.');
+  }
+
+  // Restore proportional position after reflow
+  if (gs && scrollRatio > 0) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        gs.scrollTop = Math.round(scrollRatio * gs.scrollHeight);
+      });
+    });
+  }
+}
+
+// ── MUSIC (settings panel) ────────────────────────────────────
+function settingsToggleMusic() {
+  if (musicPlaying) {
+    stopAllMusic();
+    setMusicToggleUI(false);
+    localStorage.setItem(STORAGE_KEYS.music, '0');
+    showTicker('Sabrina put on her noise-canceling headset.');
+  } else {
+    // Re-start music at the current node's track
+    initTracks();
+    musicPlaying = true;
+    const trackId = LOCATION_TRACK[state.currentNode] || 'palace';
+    currentTrackId = trackId;
+    const track = tracks[trackId];
+    if (track) { track.volume = 0; track.play().catch(() => {}); fadeTrack(track, 1, 2500); }
+    setMusicToggleUI(true);
+    localStorage.setItem(STORAGE_KEYS.music, '1');
+    showTicker('Sabrina took off her noise-canceling headset.');
+  }
+}
+function setMusicToggleUI(isOn) {
+  const btn = document.getElementById('toggle-music');
+  if (!btn) return;
+  if (isOn) {
+    btn.setAttribute('aria-pressed', 'true');
+    btn.textContent = '♩ On';
+  } else {
+    btn.setAttribute('aria-pressed', 'false');
+    btn.textContent = '♩ Off';
+  }
+}
+
+// ── EXIT TO LIBRARY (placeholder) ────────────────────────────
+function exitToLibrary() {
+  // Placeholder — will link to website once live
+  showTicker('The Library is not yet open. Come back soon.');
+}
+
+// ── HEADER TICKER — TYPEWRITER NOTIFICATION SYSTEM ───────────
+// Replaces the location line temporarily with Sabrina flavor text.
+// Full typewriter: erase char-by-char, type new text char-by-char,
+// hold 3s, then erase and restore original location.
+// Interruption-safe: any new call immediately cancels in-progress animation.
+
+let _twTimers = [];
+let _twHoldTimer = null;
+
+function _twCancel() {
+  _twTimers.forEach(t => clearTimeout(t));
+  _twTimers = [];
+  if (_twHoldTimer) { clearTimeout(_twHoldTimer); _twHoldTimer = null; }
+}
+
+function showTicker(msg) {
+  // Operates on the value span only; hides/shows the prefix span
+  // so the row never collapses (min-height handles the empty state)
+  const valEl  = document.getElementById('header-location-value');
+  const pfxEl  = document.getElementById('header-location-prefix');
+  if (!valEl) return;
+
+  _twCancel();
+
+  // Snapshot the location name (without prefix) as restore target
+  const restoreText = valEl.getAttribute('data-location') || valEl.textContent;
+  valEl.setAttribute('data-location', restoreText);
+
+  function eraseOut(target, charDelay, done) {
+    let cur = target;
+    function step() {
+      if (cur.length === 0) { done(); return; }
+      cur = cur.slice(0, -1);
+      valEl.textContent = cur;
+      _twTimers.push(setTimeout(step, charDelay));
+    }
+    step();
+  }
+
+  function typeOut(target, charDelay, done) {
+    valEl.textContent = '';
+    let i = 0;
+    function step() {
+      if (i >= target.length) { done(); return; }
+      valEl.textContent += target[i++];
+      _twTimers.push(setTimeout(step, charDelay));
+    }
+    step();
+  }
+
+  // Phase 1: hide prefix, erase current value (18ms/char)
+  if (pfxEl) pfxEl.style.display = 'none';
+  eraseOut(restoreText, 18, () => {
+    // Phase 2: type flavor text (26ms/char)
+    typeOut(msg, 26, () => {
+      // Phase 3: hold 3 seconds
+      _twHoldTimer = setTimeout(() => {
+        _twHoldTimer = null;
+        // Phase 4: erase flavor text (16ms/char)
+        eraseOut(msg, 16, () => {
+          // Phase 5: restore prefix + type location name back (22ms/char)
+          if (pfxEl) pfxEl.style.display = '';
+          typeOut(restoreText, 22, () => {
+            valEl.setAttribute('data-location', restoreText);
+          });
+        });
+      }, 3000);
+    });
+  });
+}
+
+// ── SYNC music panel button when stopAllMusic() is called ─────
+// Patch stopAllMusic to also update the settings panel button.
+const _originalStopAllMusic = stopAllMusic;
+stopAllMusic = function() {
+  _originalStopAllMusic();
+  setMusicToggleUI(false);
+};
+
+// ── INIT ──────────────────────────────────────────────────────
+// Also patch startGame to sync music button state after autostart.
+const _originalStartGame = startGame;
+startGame = function() {
+  _originalStartGame();
+  // After autostart, update toggle UI and save pref if not already set
+  setMusicToggleUI(true);
+  if (localStorage.getItem(STORAGE_KEYS.music) === null) {
+    localStorage.setItem(STORAGE_KEYS.music, '1');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', loadPreferences);
+</script>
 
 </body>
 </html>
