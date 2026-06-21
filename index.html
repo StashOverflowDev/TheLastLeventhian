@@ -285,6 +285,27 @@ body::before {
 .found-doc-text { font-style: italic; color: var(--ink-dim); font-size: 0.97rem; line-height: 1.95; }
 .found-doc-text p { margin-bottom: 0.85em; }
 .found-doc-text p:last-child { margin-bottom: 0; }
+/* Inline diagrams/maps inside found documents — scales down like .ascii-art but
+   keeps a horizontal scroll fallback since this content is informational, not decorative. */
+.found-doc-ascii {
+  display: block; font-family: 'Courier Prime', monospace; font-style: normal;
+  white-space: pre; font-size: clamp(0.5rem, 2.4vw, 0.78rem); line-height: 1.55;
+  color: var(--ink-dim); overflow-x: auto; margin-bottom: 0.85em;
+}
+@media (max-width: 600px) {
+  .found-doc-ascii { font-size: 0.42rem; }
+}
+html.font-large .found-doc-ascii { font-size: clamp(8px, 2.4vw, 11px) !important; line-height: 1.45 !important; }
+@media (max-width: 600px) {
+  html.font-large .found-doc-ascii { font-size: 7px !important; }
+}
+/* Code identifiers (e.g. function signatures) — wrap instead of overflowing on
+   narrow screens, and sit slightly smaller than surrounding prose since
+   monospace glyphs read larger than serif/italic body text at equal font-size. */
+code {
+  font-family: 'Courier Prime', monospace; font-size: 0.88em;
+  word-break: break-word; overflow-wrap: anywhere; white-space: normal;
+}
 
 /* MEMORY FLASH */
 .memory-flash {
@@ -810,6 +831,10 @@ const state = {
   hadNotes: true, sawBlueLight: false, heardDeepSound: false,
   hessDynamic: 'intern', carvedSymbol: false, gatekeeperApproach: null,
   hessInjured: false,
+  hessInjuredWorse: false, hessCRMBroken: false, hessPaced: false,
+  maraAccepted: false, logbookLost: false,
+  lexCRMDoc: false, lexImplantDoc: false, sabrinaHandBurn: false,
+  sabrinaEnteredFirst: false,
 };
 let sceneHistory = [];
 let sceneHistoryRenderedCount = 0;
@@ -871,6 +896,36 @@ const LOCATION_TRACK = {
   c6_tunnel_c1:'lake', c6_tunnel_c2:'lake',
   c6_entering:'lake', c6_threshold_choice:'lake', c6_threshold_a:'lake', c6_threshold_b:'lake',
   c6_end:'lake',
+  // Ch7
+  c7_opening:'lake', c7_opening_a:'lake', c7_opening_b:'lake', c7_opening_c:'lake',
+  c7_opening_converge:'lake', c7_first_light:'lake', c7_generator_a:'lake', c7_generator_b:'lake',
+  c7_tunnel_walk:'lake', c7_hess_pace:'lake', c7_hess_pace_slow:'lake', c7_hess_pace_push:'lake',
+  c7_branch_point:'lake', c7_supervisor_approach:'lake', c7_terminal_decision:'lake',
+  c7_terminal_bypass:'lake', c7_terminal_decrypt:'lake', c7_supervisor_exit:'lake',
+  c7_service_long:'lake', c7_service_treacherous:'lake', c7_junction:'lake',
+  c7_mara_first:'lake', c7_mara_schooner:'lake', c7_mara_request:'lake',
+  c7_mara_accept:'lake', c7_mara_decline:'lake', c7_toward_door:'lake',
+  c7_door_approach:'lake', c7_code_diagram:'lake', c7_code_margin:'lake',
+  c7_switch:'lake', c7_confirm_sabrina:'lake', c7_confirm_hess:'lake', c7_confirm_mara:'lake',
+  c7_folder_choice:'lake', c7_door_open:'lake',
+  // Ch8
+  c8_opening:'lake', c8_figure_close:'lake', c8_figure_pointing:'lake', c8_street_pause:'lake',
+  c8_road:'lake', c8_buckner_exterior:'lake', c8_buckner_map:'lake',
+  c8_map_take:'lake', c8_map_leave:'lake', c8_buckner_enter:'lake',
+  c8_wing_admin:'lake', c8_document_1:'lake', c8_wing_maintenance:'lake', c8_document_2:'lake',
+  c8_document_response:'lake', c8_doc_close:'lake', c8_doc_push:'lake',
+  c8_rations:'lake', c8_buckner_exit:'lake', c8_waterfront:'lake',
+  c8_waterfront_stand:'lake', c8_waterfront_boat:'lake', c8_waterfront_pier:'lake',
+  c8_compass_incident:'lake', c8_compass_throw:'lake', c8_compass_salvage:'lake',
+  c8_towers_approach:'lake', c8_approach_silent:'lake', c8_approach_ask:'lake',
+  c8_towers_door:'lake', c8_towers_door_a:'lake', c8_towers_door_b:'lake', c8_end:'lake',
+  // Ch9
+  c9_opening:'lake', c9_opening_call:'lake', c9_opening_run:'lake',
+  c9_stairwell_morph:'lake', c9_morph_memory:'lake', c9_morph_listen:'lake', c9_morph_follow:'lake',
+  c9_stairwell_squeeze:'lake', c9_squeeze_through:'lake', c9_squeeze_around:'lake',
+  c9_stairwell_high:'lake', c9_high_gallery:'lake', c9_high_left:'lake',
+  c9_dining_hall:'lake', c9_hall_audit:'lake', c9_hall_breathe:'lake', c9_hall_fixate:'lake',
+  c9_dining_hall_converge:'lake',
 };
 
 function initTracks() {
@@ -1269,6 +1324,313 @@ cave |         |         | jungle
         |           and                   |
         |       something else            |
         |___________________________________|`,
+
+  // Ch7 ASCII
+  generator_alcove: `[ T h e   G e n e r a t o r   A l c o v e ]
+
+      |          |          |          |          |
+  ____|__________|__________|__________|__________|____
+ |                                                     |
+ |    = = = = = = = = = = = = = = = = = = = = = = =   |
+ |                                                     |
+ |  ________________________                          |
+ | |  .  .  .  .  .  .  .  |      * * * * * * * *   |
+ | |  .  .  .  .  .  .  .  |                         |
+ | |  .  .  .  .  .  .  .  |                         |
+ | |_________________________|                        |
+ |_____________________________________________________|
+          |          |          |          |`,
+
+  tunnel_interior: `[ T u n n e l   I n t e r i o r ]
+
+      |          |          |          |          |
+  ____|__________|__________|__________|__________|____
+ |                                                     |
+ |  = = = = = = = = = = = = = = = = = = = = = = = =  |
+ |                                                     |
+ |  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  |
+ |                                                     |
+ |  = = = = = = = = = = = = = = = = = = = = = = = =  |
+ |_____________________________________________________|
+          drip          drip          drip
+                  · · · ahead · · ·`,
+
+  tunnel_junction: `[ T h e   J u n c t i o n ]
+
+     left            |                          |          right
+     service         |  = = = = = = = = = = =  |         service
+     tunnel          |                          |          tunnel
+       |             |                          |             |
+       |             |    [ chassis, stopped ]  |             |
+  _____|_____________|__________________________|_____________|____
+ |                                                               |
+ |                 [ supervisor's office door, right wall ]      |
+ |_______________________________________________________________|
+                            · · · ahead · · ·`,
+
+  supervisor_office: `[ T h e   S u p e r v i s o r ' s   O f f i c e ]
+
+         . . . crackle . . . . crackle . . . . crackle . . .
+   ___________________________________________________________
+  |                                                           |
+  |  \\  chair  /   ·  mug  ·  · papers · papers · papers ·  |
+  |   ( tipped )   ( shattered )                             |
+  |                                                           |
+  |   coat                                                    |
+  |   coat        · · · crackle · · · · crackle · · ·        |
+  |                                              _________    |
+  |   glasses                                   |  * * *  |  |
+  |   ( folded )                                |  *   *  |  |
+  |                                             |_________|  |
+  |___________________________________________________________|`,
+
+  service_tunnel_left: `[ S e r v i c e   T u n n e l ,   L e f t ]
+
+     |          |          |          |          |
+     |  pipe    |  pipe    |  pipe    |  pipe    |
+     |  |       |  |       |  |       |  |       |
+     |  |       |  |       |  |                  |
+     |  |       |  |   · · dark · ·   |  |       |
+     |  |       |  |                  |  |       |
+     |  |       |  |  · · dark · · ·  |  |       |
+     |____________________________________________|
+          ~  drip  ~  drip  ~  drip  ~  drip  ~`,
+
+  service_tunnel_right: `[ S e r v i c e   T u n n e l ,   R i g h t ]
+
+     | wall  | wall  |             | wall  | wall  |
+     |       |       |  ~  ~  ~   |       |       |
+     | pipe  | pipe  |  ~ gap ~   | pipe  | pipe  |
+     |       |       |  ~  ~  ~   |       |       |
+     |_______|_______\\             /______|_______|
+                      \\           /
+                        ~ debris ~`,
+
+  mara_camp: `[ M a r a ' s   C a m p ]
+
+  < left         |      main tunnel      |         right >
+  < service      |                       |         service >
+                 |                       |
+   _____________________________________________
+  |                                             |
+  |  · · · · · · ·                             |
+  |  · · cache · ·      *  pale green  *       |
+  |  · · · · · · ·             |               |
+  |                             |               |
+  |                           light             |
+  |                             |               |
+  |                                             |
+  |                       · figure · wall ·    |
+  |_____________________________________________|
+                       watching`,
+
+  tunnel_door_whittier: `[ T h e   W e s t   D o o r ]
+
+     |          |          |          |          |
+  ___|__________|__________|__________|__________|___
+ |                                                   |
+ |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           |
+ |      ~                               ~           |
+ |      ~          [ panel ]            ~           |
+ |      ~                               ~           |
+ |      ~   · lever ·    · confirm ·   ~           |
+ |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           |
+ |                                                   |
+ |  · · · · · · · · seal · · · · · · · · ·          |
+ |___________________________________________________|
+              darkness  ·  ·  ·  beyond`,
+
+  whittier_glimpse: `[ A   G l i m p s e   o f   W h i t t i e r ]
+
+     mountains          mountains          mountains
+  ___________________________________________________
+ |                                                   |
+ |     grey  ·  grey  ·  grey  ·  grey  ·  grey     |
+ |                                                   |
+ |               [ tower ]                          |
+ |          lights  ·  dark  ·  lights               |
+ |        dark  ·  lights  ·  dark  ·  lights        |
+ |                                                   |
+ |  ·  figure  ·    · figure ·    ·  figure  ·      |
+ |    (mid-step)      (mid-word)                     |
+ |                                                   |
+ |  snow  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  snow   |
+ |___________________________________________________|`,
+
+  // Ch8 ASCII
+  whittier_arrival: `[ W h i t t i e r ]
+
+    ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  mountains
+   |                                    |
+   |  [fig]    [fig]  [fig]  [fig]      |
+   |                                    |
+   |  · · · · · road · · · · · · ·     |
+   |                         [towers]  |
+   |____________________________________|
+    ~  ~  ~  ~  ~  ~  ~  bay  ~  ~  ~`,
+
+  frozen_detail: `[ F r o z e n ]
+
+   = = = = = = = = = = = = = = =
+  /                               \\
+ /           · raised ·            \\
+ \\                                 /
+  \\ · · · · · · · · · · · · · · · /
+   = = = = = = = = = = = = = = =
+        · · · · · · · · · ·`,
+
+  whittier_road: `[ W h i t t i e r — W a t e r f r o n t ]
+
+ ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  mountains
+|                                               |
+|   [fig]           [fig]      [fig]            |
+|                                               |
+|   [ B U C K N E R ]                          |
+|         |                                     |
+|  · · · ·+· · · · · road · · · · · · ·       |
+|                            [ T O W E R S ]   |
+|_______________________________________________|
+ ~  ~  ~  ~  ~  ~  ~  bay  ~  ~  ~  ~  ~  ~`,
+
+  buckner_exterior: `[ B u c k n e r  B u i l d i n g ]
+
+  mountain                    mountain
+     |   ________________________|  |
+     |  |                        |  |
+     |  |  [ ]  [ ]  [X]  [ ]   |  |
+     |  |  [X]  [ ]  [ ]  [X]   |  |
+     |  |  [ ]  [X]  [ ]  [ ]   |  |
+     |  |          [  sky  ]     |  |
+     |  |________________________|  |
+     |           entrance           |
+     |______________________________|`,
+
+  buckner_admin: `[ B u c k n e r — A d m i n i s t r a t i v e ]
+
+  | [ ] | [ ] |       corridor      | [ ] | [ ] |
+  |     |     |                     |     |     |
+  |_____|_____|_____________________|_____|_____|
+                            |
+                      [ n o r t h ]
+                      window · light`,
+
+  buckner_maintenance: `[ B u c k n e r — M a i n t e n a n c e ]
+
+  ~  pipe  ~  pipe  ~  pipe  ~  pipe  ~
+  |                                    |
+  |  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]     |
+  |                                    |
+  |  · · · · · · · · · · · · · · ·    |
+  |_____________·______________________|
+               [ ]`,
+
+  passage_canal: `[ P a s s a g e   C a n a l ]
+
+  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+     /\\   pressure    /\\   pressure
+    /  \\    ridge    /  \\    ridge
+  ~/    \\  ~  ~  ~ /    \\ ~  ~  ~  ~
+  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~
+  
+  [ dock ] · · rope (frozen mid-sag) · · [ bow ]
+  
+  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~  ~`,
+
+  towers_approach: `[ B e g i c h   T o w e r s ]
+
+       ^     ^     mountains     ^     ^
+           ___________________________
+          |[ ][ ][ ][ ][ ][ ][ ][ ][ ]|
+          |[ ][*][ ][ ][ ][ ][*][ ][ ]|
+          |[ ][ ][ ][*][ ][ ][ ][ ][ ]|
+          |[*][ ][ ][ ][*][ ][ ][*][ ]|
+          |[ ][ ][*][ ][ ][ ][ ][ ][ ]|
+          |[ ][ ][ ][ ][ ][*][ ][ ][ ]|
+          |[ ][*][ ][ ][ ][ ][ ][ ][*]|
+          |[ ][ ][ ][ ][*][ ][ ][ ][ ]|
+          |[ ][ ][*][ ][ ][ ][ ][*][ ]|
+          |[ ][ ][ ][ ][ ][ ][ ][ ][ ]|
+          |[ ][ ][ ][*][ ][ ][*][ ][ ]|
+          |[ ][*][ ][ ][ ][ ][ ][ ][ ]|
+          |[ ][ ][ ][ ][ ][*][ ][ ][ ]|
+          |___________________________|
+          |     fourteen storeys      |
+          |___________________________|
+         [fig]                   [fig]`,
+
+  towers_lobby: `[ B e g i c h   T o w e r s — L o b b y ]
+
+     |          |          |          |
+  ___|__________|__________|__________|___
+ |                                        |
+ |   [ · ]                  [ · · · ]    |
+ |  (closed)               (open : ~20°) |
+ |                              \\         |
+ |   · · · · · · ·               \\        |
+ |                                |        |
+ |      · · ^ ^ ^ ^ · ·           |        |
+ |________________________________________|`,
+
+  // Ch9 ASCII
+  stairwell_chase: `[ T h e   S t a i r w e l l ]
+
+        |        |        |        |
+    ____|________|________|________|____
+   |                                    |
+   |               ^                    |
+   |              /|\\    fleeing        |
+   |             /   \\                  |
+   |                                    |
+   |     ·  dark  ·      ·  light  ·    |
+   |        ·  light  ·     ·  dark  ·  |
+   |                                    |
+   |   [ S ]                            |
+   |   boot on the first step           |
+   |____________________________________|
+          concrete  ·  rising  ·  dark`,
+
+  morph_stairwell: `[ T h e   S h i f t ]
+
+         | | | |          | | | |
+         | | | |          | | | |
+         | | | | \\      / | | | |
+         | | | |  \\    /  | | | |
+         | | | |   \\  /   | | | |
+              hiss   \\/   hiss
+                     /\\
+              grain /  \\ grain
+                   /    \\
+                  ·  ·  ·
+             plaster · mahogany
+                   \\    /
+                    \\  /    ( * )
+                     \\/     sconce
+                     /\\      flame
+                    /  \\
+                   /    \\
+                  ·      ·
+                 curving
+                banister`,
+
+  grand_dining_hall: `[ T h e   G r a n d   D i n i n g   H a l l ]
+
+      *               *               *
+      |               |               |
+    ~ | ~           ~ | ~           ~ | ~
+      |               |               |
+      ·               ·               ·
+   _____________________________________________
+  |                                             |
+  |  · · · · · · · · · · · · · · · · · · · ·  |
+  |  · · · · · · · · · · · · · · · · · · · ·  |
+  |  · · · · · · · · · · · · · · · · · · · ·  |
+  |                                             |
+  |  |               ~ · ~ · ~ · ~ · ~        |
+  |  · · ·           ~ · ~ · ~ · ~ · ~        |
+  |                                             |
+  |         · · · · · ·      ·                 |
+  |_____________________________________________|
+               warm  ·  amber  ·  alive`,
 
 };
 
@@ -3285,6 +3647,1690 @@ const nodes = {
     isEndCh6: true,
   },
 
+  // CHAPTER 7 ──────────────────────────────────────────────────
+
+  c7_opening: {
+    chapter:'Chapter VII', chapterTitle:'Through the Tunnel',
+    headerChapter:', Ch. VII', location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="scene-narrative">
+        <p>The light at the far end of the tunnel went out.</p>
+        <p>Sabrina stopped.</p>
+        <p>The darkness was total. She raised one hand and held it in front of her face, but saw nothing at all. The last echo of their footsteps clattered off the concrete walls and faded. Somewhere along the passage, a drop of condensation fell onto the steel rail and rang out, brief and clean.</p>
+        <p>From her left, Hess drew a sharp breath.</p>
+        <p>Sabrina's next breath stretched out, caught in an unnatural slow motion. She noticed this before she understood it. The air had become different to move through. A thin, persistent resistance pressed against her chest as she inhaled, as if the very air were resisting her arm when she raised it. She moved her hand slowly to the left, then to the right, holding on to that feeling. It was neither wind nor temperature, but something that added a fraction of weight to every movement, so subtle it could almost be nothing, yet her body confirmed it on every repetition.</p>
+        <p>She catalogued by touch: hammer at hip, Verne book in pack, compass in pocket. The darkness held all of it, intact.</p>
+      </div>`; },
+    choices: [
+      { text:'Call out for Hess. Keep her voice low and steady.', next:'c7_opening_a', onChoose() { raiseFlag('anchor'); } },
+      { text:'Go completely still and let the tunnel tell her what it can.', next:'c7_opening_b', onChoose() { raiseFlag('observer'); } },
+      { text:'Move left until her hand finds the wall. Get a fixed point before anything else.', next:'c7_opening_c', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c7_opening_a: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Hess.</div>
+      </div>
+      <div class="scene-narrative"><p>She kept her voice low.</p></div>
+      <div class="scene-narrative"><p>After a few moments, a quiet murmur came from her left:</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Still here. Don't move yet.</div>
+      </div>
+      <div class="scene-narrative"><p>Hess's voice emerged, stripped down to the two facts it needed to carry. Sabrina heard the effort in the control of it.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Something has changed in here. Give me a moment.</div>
+      </div>
+      <div class="scene-narrative"><p>She heard her jacket rustle. Then Hess's torch came on, the gold beam cutting through the dark, the tunnel announcing itself: concrete panels, dead lighting strips along the upper walls, the steel rail running along the left side of the passage.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The air. It pushes back when I move through it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I feel it too. Keep your movements slow.</div>
+      </div>`; },
+    next:'c7_opening_converge',
+  },
+
+  c7_opening_b: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She went completely still.</p>
+        <p>The tunnel offered what it had: a water drip somewhere behind them, a metal strip creaking softly as it cooled overhead. To her left, Hess's breathing barely registered, shallow and steady, making her sound like someone deliberately holding back.</p>
+        <p>Then Sabrina moved her arm slowly through the dark and felt it. The air pressed back. She moved it again, more deliberately. The resistance returned each time, consistent and entirely without an obvious source. Every motion through this space cost a fraction more than it should have, as though the air itself had decided to be slightly more present than it ought to be.</p>
+        <p><em>Something is different in here.</em></p>
+        <p>Hess's torch came on. The gold beam exposed the bones of the passage: wall panels, a guide rail, multiple dead lighting strips. Beyond its reach, darkness took over.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The air. It pushes back. There's more weight to moving through it than there should be.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I know.</div>
+      </div>
+      <div class="scene-narrative"><p>She angled the beam forward.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Stay close. We keep moving.</div></div>`; },
+    next:'c7_opening_converge',
+  },
+
+  c7_opening_c: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She moved left until her palm found the wall.</p>
+        <p>Under her fingers, the concrete was cold and gritty. She drew a slow breath and let the darkness stop being a threat and become a medium, something to move through rather than something happening to her.</p>
+        <p>She took one step and felt it immediately. The air pressed back against her chest and her raised arm, light but unmistakable. Every movement through this space cost slightly more than it should.</p>
+        <p><em>Wrong. The air in here is wrong.</em></p>
+        <p>Hess's torch came on from two metres left, gold light cutting the passage into surfaces and shadows.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> There's something wrong with the air. It pushes back against every movement.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Yes.</div>
+      </div>
+      <div class="scene-narrative"><p>She angled the beam forward.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I've been feeling it for a while. Come on.</div></div>`; },
+    next:'c7_opening_converge',
+  },
+
+  c7_opening_converge: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="scene-narrative">
+        <p>The air resistance was consistent, pressing against every movement and every breath in equal measure. Sabrina had adjusted to it gradually, accounting for what each step would cost. Her thoughts moved at the right pace, yet her body lagged behind.</p>
+        <p>Their footsteps echoed back from every surface simultaneously, creating a hollow sound.</p>
+        ${state.hessInjured ? `<p>At the edge of the torchlight, Sabrina caught the way Hess had positioned herself: right shoulder angled toward the wall, left side carrying less weight. She had adjusted at some point during the darkness without saying so.</p>` : ''}
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> We stay close. Watch the rail on the left. The ground between the rails can be uneven.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> How far to the other end?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Far. Don't think about it too much, just focus on the next section.</div>
+      </div>`; },
+    next:'c7_first_light',
+  },
+
+  c7_first_light: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="ascii-art">${ASCII.generator_alcove}</div>
+      <div class="scene-narrative">
+        <p>They had been walking for some time when Sabrina felt a vibration through her boot soles. It was steady and constant. She realised the sensation wasn't new: it had been there since they crossed the east entrance, an unbroken hum beneath her footsteps.</p>
+        <p>She stopped.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> There's something vibrating in the floor.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I know. Look right.</div>
+      </div>
+      <div class="scene-narrative">
+        <p>The torchlight found it: an alcove recessed into the right wall, sealed at the back by a metal grate. Behind the grate, a diesel generator, large, covered in years of dust. The fuel line connection was capped and sealed with a collar of rust.</p>
+        <p>It was running.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That should not be running.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> No.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The fuel line is restricted. Looks like it's been like this for decades.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I know what you're thinking.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Then you know what I'm about to say.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Say it anyway.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> And yet, it powers every single light ahead.</div>
+      </div>
+      <div class="scene-narrative"><p>As the machine hummed steadily through the floor, several lines of lighting strips buzzed awake ahead of them. For the first time since entering the tunnel, they could actually see where they were going.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> This is what we're walking into.</div></div>`; },
+    choices: [
+      { text:'Get closer and examine it. Running without fuel is a fact her memory refuses to leave unexamined.', next:'c7_generator_a', onChoose() { raiseFlag('observer'); } },
+      { text:'Take a mental note, then keep walking. The generator joins the list of wrong things in this tunnel.', next:'c7_generator_b', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c7_generator_a: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She crouched in front of the grate and held the torchlight close.</p>
+        <p>Beyond the grate, the fuel collar was sealed tight and an output cable led upward into the wall's lighting circuit. A maintenance log was clipped to the housing, showing two legible lines from that angle.</p>
+        <p>She read them aloud.</p>
+      </div>
+      <div class="found-doc">
+        <div class="found-doc-label">◈ Maintenance log, generator housing</div>
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p>Fuel reserves below operational threshold. Flagged for resupply, Tunnel Ops.</p>
+        </div></div>
+      </div>
+      <div class="scene-narrative"><p>Underneath, a second handwriting styled the next line:</p></div>
+      <div class="found-doc">
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p>Noted. Resupply scheduled.</p>
+        </div></div>
+      </div>
+      <div class="scene-narrative"><p>Below that, nothing at all. Awaiting a fix, the machine had been running with fuel levels at below-threshold when the evacuation happened and no one returned.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Someone noticed. Someone wrote it down and promised a fix. And then everyone left.</div>
+      </div>
+      <div class="scene-narrative"><p>She stood up.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> It has been running in the gap between that promise and never.</div></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> What do you do with that information?</div></div>
+      <div class="scene-narrative"><p>Sabrina looked at the lit strips stretching ahead.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I keep it. I'll know what to do with it when the list is long enough to read.</div></div>`; },
+    next:'c7_tunnel_walk',
+  },
+
+  c7_generator_b: {
+    render() { return `
+      <div class="scene-narrative"><p>She looked at the restricted fuel line, then at the output cable. The dust-sheened housing kept up a steady hum, vibrating through the floor.</p></div>
+      <div class="scene-narrative"><p><em>Something is keeping this tunnel alive,</em> she thought. <em>Not with any intention. It just keeps going, the same as certain things do when no one is left to tell them otherwise.</em></p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm adding it to the list.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> What list?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The one that begins with a compass pointing somewhere that isn't north, a schooner that moved without wind and now a generator running on nothing.</div>
+      </div>
+      <div class="scene-narrative"><p>She started walking.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> When the list is long enough it will tell me something.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Or it will only get longer.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That would also be useful information.</div>
+      </div>`; },
+    next:'c7_tunnel_walk',
+  },
+
+  c7_tunnel_walk: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="ascii-art">${ASCII.tunnel_interior}</div>
+      <div class="scene-narrative">
+        <p>Their footsteps fell flat against the concrete panels and came back to them as thin, hollow copies. Condensation dripped onto the rail behind them at no fixed interval. The generator's vibration moved through the floor and into Sabrina's legs as she walked. The tunnel smelled of concrete, cold, something dry deep in the stone itself.</p>
+        <p>The air resistance worsened, not sharply, but with the consistency of a tide: each section of passage slightly more expensive than the last, each breath fractionally harder to complete. Sabrina's arms moved at the right pace. Her thoughts moved at the right pace. But the cost registered in her legs and shoulders, sustained effort against nothing visible.</p>
+        <p>The hammer at her hip felt correct. She was aware of the Verne book in the pack, its weight familiar, slightly warmer than the canvas around it.</p>
+      </div>`; },
+    get next() { return state.hessInjured ? 'c7_hess_pace' : 'c7_branch_point'; },
+  },
+
+  c7_hess_pace: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The torchlight was angled low, tracking the ground. Sabrina had been watching Hess's feet for some time now, watching the small correction that kept returning: right boot landing clean, left boot landing clean, then the fourth step giving slightly less than its full weight, the body redistributing forward to cover it. The torch never wavered. The stride never showed it.</p>
+        <p>But it was there.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Hess.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Keep walking.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm not asking you to stop.</div>
+      </div>
+      <div class="scene-narrative"><p>Hess kept the torchlight steady.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Then what are you getting at?</div></div>`; },
+    choices: [
+      { text:'"I\'m asking if we should slow down." Say it plainly.', next:'c7_hess_pace_slow', onChoose() { raiseFlag('anchor'); state.hessPaced = true; } },
+      { text:'Say nothing else. She asked. Hess heard. That is answer enough.', next:'c7_hess_pace_push', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c7_hess_pace_slow: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Slowing down won't fix anything.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No. But it'll make the second half a hell of a lot easier on the legs.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That's not what you said.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I said it differently.</div>
+      </div>
+      <div class="scene-narrative"><p>Hess adjusted the torch.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Fine. We slow down.</div></div>
+      <div class="scene-narrative"><p>They slowed. The generator's vibration continued through the floor. Condensation kept its count behind them. They gave the passage its due, together.</p></div>`; },
+    next:'c7_branch_point',
+  },
+
+  c7_hess_pace_push: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>Sabrina kept walking.</p>
+        <p>Hess kept walking.</p>
+        <p>The torchlight swept the passage ahead with the even arc of someone who had decided that forward momentum was the only way to outrun their thoughts. Sabrina matched the pace. The small correction in the stride appeared again, then again. Each time the recovery came immediately. Each time the torch did not waver. She gave Hess the silence and let it do what it could.</p>
+      </div>`; },
+    next:'c7_branch_point',
+  },
+
+  c7_branch_point: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="ascii-art">${ASCII.tunnel_junction}</div>
+      <div class="scene-narrative">
+        <p>The junction came where the walls stepped briefly back, the ceiling lifting before returning to its customary height. To the left, a service tunnel opened in the left wall, its mouth dark and narrow, air moving slowly from its interior. To the right, a second service tunnel entrance in the right wall showed a long diagonal fracture running from ceiling to floor, the concrete displaced inward around it.</p>
+        <p>Ahead, the main tunnel continued under the generator's strips. It looked clear for another stretch. Then the torchlight met something it could not pass.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Something is on the tracks.</div></div>
+      <div class="scene-narrative">
+        <p>A maintenance chassis sat dead on the rails further down the passage. It was broad and low, built to carry heavy equipment through the mountain, and closer in the torchlight, every line of it read the same: whoever parked it there had not meant to leave it long. The gap between the chassis body and the right wall narrowed to a tight choke point. Even stripped of their gear, a single traveler would struggle to wedge through; laden as they were, it was an absolute dead end.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> There's a door in the right wall, before the chassis. Service access to the supervisor's office. It bypasses the blockage.</div>
+      </div>
+      <div class="scene-narrative"><p>She angled the beam at a heavy steel door set flush with the wall ahead.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I can see it from here.</div></div>`; },
+    choices: [
+      { text:'Take the supervisor\'s office detour. The blockage gives her a reason to see what is in there.', next:'c7_supervisor_approach', onChoose() { raiseFlag('observer'); } },
+      { text:'Take the left service tunnel. It\'s longer but structurally intact. She trusts a passage without visible damage.', next:'c7_service_long', onChoose() { raiseFlag('anchor'); } },
+      { text:'Take the right service tunnel. The fracture is a concern but the passage is shorter.', next:'c7_service_treacherous', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c7_supervisor_approach: {
+    location:'Tunnel Supervisor\'s Office',
+    render() { return `
+      <div class="ascii-art">${ASCII.supervisor_office}</div>
+      <div class="scene-narrative">
+        <p>The door was heavy steel, set flush with the right wall before the chassis. As it swung inward on complaining hinges, the room exhaled: stale air, sealed for a very long time, still carrying the ghost of the people who had last breathed it.</p>
+        <p>A chair lay on its side near the door. A coffee mug had shattered against the far wall, the dark stain from it still holding the rough shape of the impact. Papers covered the floor, distributed in a pattern that said something had knocked them all at once from a single surface. A coat still hung on its peg. Reading glasses sat folded on the desk as if their owner had set them down to answer a question and never returned.</p>
+        <p>The room crackled. The interference arrived as sensation rather than sound, a faint rhythmic charge pressing against the back of Sabrina's hands and the nape of her neck at irregular intervals. Hess felt it too: her CRM gave a low, involuntary chirp, the device registering something running in its range.</p>
+        <p>On the desk, a monitoring terminal was alive. It drew on reserve power and emitted a slow, deliberate amber pulse. At the top of the display, clean white letters read:</p>
+        <p><em>HIGH-PRIORITY PACKET, ENCRYPTED, FLAGGED FOR IMMEDIATE DELIVERY, SENDER: TUNNEL OPERATIONS AUTHORITY</em></p>
+        <p>Below the message was a counter. The packet had been waiting for delivery, its scheduled date having long since passed.</p>
+      </div>`; },
+    next:'c7_terminal_decision',
+  },
+
+  c7_terminal_decision: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> The terminal is holding an encrypted packet. I can route the decryption through my CRM and force it open.</div>
+      </div>
+      <div class="scene-narrative"><p>She said it carefully, with the tone she used for things she had already worked out were not simple.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> But?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> The interference. Try yours first.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina checked her CRM. The screen cycled through two failed connection attempts, then settled into a reduced-function state. She tried the decryption interface but it wasn't loading. The intern-issue unit didn't carry the full toolkit to begin with and the interference had finished off what little functionality remained.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Mine can't do it, limited spec. Whatever this interference is has taken out the rest.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Thought so.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at the terminal.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Mine can, but forcing a decrypt under these conditions will stress the hardware.</div></div>
+      <div class="scene-narrative"><p>She paused.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It could break it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Permanently?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Possibly. Out here, a broken CRM means no server check for the rest of this trip.</div>
+      </div>
+      <div class="scene-narrative"><p>Her voice stayed flat.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> This is your call.</div></div>`; },
+    choices: [
+      { text:'Leave the terminal. Whatever the packet contains, it isn\'t worth risking the CRM out here.', next:'c7_terminal_bypass', onChoose() { raiseFlag('observer'); } },
+      { text:'Tell Hess to force the decrypt. They did not come this far to walk past information.', next:'c7_terminal_decrypt', onChoose() { raiseFlag('instinct'); state.hessCRMBroken = true; } },
+    ],
+  },
+
+  c7_terminal_bypass: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Leave it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Alright.</div>
+      </div>
+      <div class="scene-narrative">
+        <p>She said it without pushing back.</p>
+        <p>Sabrina looked at the terminal one last time, then turned for the back door. The exit gave way to the far side of the chassis blockage, the main tunnel resuming ahead under its patient light strips. The packet blinked in the room behind them.</p>
+        <p><em>Some information stays sealed,</em> Sabrina realised, unable to decide whether that was the right decision or a cost she had not finished counting.</p>
+      </div>`; },
+    next:'c7_supervisor_exit',
+  },
+
+  c7_terminal_decrypt: {
+    render() { return `
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Force it.</div></div>
+      <div class="scene-narrative">
+        <p>She held her CRM close to the terminal's interface port and began routing the decryption. The interference immediately intensified. The crackle rose to something audible, a dry continuous static that lifted the hairs on Sabrina's arms.</p>
+        <p>The terminal's display shifted. The amber gave way to a cascade of resolving characters. Then the packet opened. Sabrina read it aloud, as she read everything.</p>
+      </div>
+      <div class="found-doc">
+        <div class="found-doc-label">◈ Document found, decrypted secure log, Audit #409, Tunnel Operations Authority</div>
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p>...structural integrity in Sector 4 (Whittier complex) is degrading rapidly. This is not a mechanical failure. The foundations themselves are dissolving. The structural concrete is experiencing accelerated molecular decay consistent with the localized anomalous phenomena documented in reports TH-11 through TH-19. Do not attempt structural reinforcement. Evacuate immediately. The buildings are a dead zone...</p>
+        </div></div>
+      </div>
+      <div class="scene-narrative">
+        <p>A sharp sound followed, then the terminal screen went dark.</p>
+        <p>Hess pulled her wrist back and looked at the CRM. The screen was dark. She turned her wrist once, the involuntary check of someone who already knew the answer, then picked up the torch from where she had set it on the desk.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> There it is.</div>
+      </div>
+      <div class="scene-narrative"><p>She kept her voice flat, though the effort of it showed.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Your CRM.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Hardware failure. The processor took the full load.</div>
+      </div>
+      <div class="scene-narrative"><p>She paused.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It won't recover.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> What does that mean for you out here?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It means I make every call without a system check. Whatever I decide, I'm deciding it without verification.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at the back door. Her jaw was set in the expression of someone who had paid a price and was not going to discuss the amount.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That is less different from normal than it should be.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Hess.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I chose this with you. Don't spend time on it.</div>
+      </div>
+      <div class="scene-narrative"><p>She moved for the exit.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> The buildings are degrading. We know that now. The question is whether Lucas is still inside one of them.</div></div>
+      <div class="scene-narrative"><p><em>The buildings are a dead zone.</em> Sabrina kept the sentence exact and whole.</p></div>`; },
+    next:'c7_supervisor_exit',
+  },
+
+  c7_supervisor_exit: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="scene-narrative"><p>Stepping through the back door placed them on the other side of the barricade. The primary transit line continued into the distance, leaving the blocked section of the track behind them.</p></div>`; },
+    next:'c7_junction',
+  },
+
+  c7_service_long: {
+    location:'Service Tunnel, Left',
+    render() { return `
+      <div class="ascii-art">${ASCII.service_tunnel_left}</div>
+      <div class="scene-narrative">
+        <p>With no lighting strips in the service tunnel, the darkness beyond the first few metres was total. Hess's torch became the only thing between them and the dark.</p>
+        <p>The passage was narrower by half. Pipes ran along both walls at chest height, sweating with condensation. The floor was rougher than the main passage and wet in sections, moisture that had been working its way down through the mountain for years. Her boots found it before the torchlight did.</p>
+        <p>The air resistance was heavier here. The tighter space seemed to concentrate it.</p>
+        <p>They moved in single file, Sabrina ahead, the torch behind her casting her shadow long across the floor. Ahead, the tunnel angled away. She heard dripping from three directions simultaneously.</p>
+        <p>The walk was longer than she had anticipated. Her legs confirmed this and her reserves confirmed it further. She pulled one ration bar from her pack and ate it while walking, chewing through the metallic taste without slowing her stride. Then, as the pale suggestion of junction light appeared ahead, she reached into the pack for the last one and ate that too.</p>
+        <p>She held the empty foil and stopped walking.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I...</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> None for me?</div>
+      </div>
+      <div class="scene-narrative"><p>The question hung in the air. It wasn't an accusation; it was just there.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I wasn't thinking. I'm sorry.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It's fine.</div>
+      </div>
+      <div class="scene-narrative"><p>Her voice stayed even.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Was it good?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> It was a military ration bar.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> So no.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No.</div>
+      </div>
+      <div class="scene-narrative"><p>The foil went into her pack. The pack sat differently on her shoulders without its contents.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> We find food in Whittier or we don't.</div></div>
+      <div class="scene-narrative"><p>She said it keeping on the move. The junction light grew until it was real. She stepped back into the wider passage.</p></div>`; },
+    next:'c7_junction',
+    onEnter() {
+      const idx = state.inventory.indexOf('Military ration bars');
+      if (idx !== -1) state.inventory.splice(idx, 1);
+    },
+  },
+
+  c7_service_treacherous: {
+    location:'Service Tunnel, Right',
+    render() {
+      const hadLogbook = state.logbookLost;
+      const debrisScene = hadLogbook
+        ? `<p>A section of rubble beneath Hess's trailing foot shifted and she caught herself hard against the left wall. Sabrina heard the impact and spun toward Hess. The motion swung her pack sharply outward. She felt something shift in the outer pocket and heard it land on the debris behind her.</p>
+        <p>She turned.</p>
+        <p>The captain's logbook lay on the rubble floor behind her, face-up in the torchlight.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The logbook fell out.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Can you reach it?</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina looked at the debris between her and it. The section that had just shifted, its geometry now unreliable.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Not safely.</div></div>
+      <div class="scene-narrative"><p>She still had every word of it. That was what the memory was for. She recited internally, moving forward toward the junction light: <em>The tear is widening. The Centre's projections assumed a stable boundary. They were wrong. I am leaving the schooner here. Whoever finds it, use it well. It knows where to go even when you do not.</em></p></div>`
+        : `<p>A section of rubble beneath Hess's trailing foot shifted and she caught herself hard against the left wall. Sabrina spun toward her, but Hess had already recovered, one palm braced flat against the stone.</p>
+        <p>They kept moving toward the junction light.</p></div>`;
+      return `
+      <div class="ascii-art">${ASCII.service_tunnel_right}</div>
+      <div class="scene-narrative">
+        <p>The fracture she had seen from the junction was worse up close. The right wall had buckled inward across a two-metre stretch, pushing the usable floor space to a narrow channel on the left. At the mid-point of the buckle, the floor itself had dropped: a sheer step of roughly half a metre down to a lower section, with a debris field of broken concrete at the base of it.</p>
+        <p>She stood at the edge and assessed it. Half a metre was not nothing, but it was doable. She stepped off and landed cleanly on both feet. She turned back to Hess.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Half a metre straight down. Debris at the bottom but it holds.</div></div>
+      <div class="scene-narrative">
+        ${state.hessInjured ? `<p>Hess moved to the edge, read the drop, came down. The landing was controlled, absorbed on the right side but with a shift to the left. The shift left put her shoulder hard against the displaced concrete of the buckled wall. The impact was sharp and brief. She pulled away immediately, her left hand coming away from the wall, fingers spasming into a tight fist before she forced them to relax.</p>` : `<p>Hess cleared the drop cleanly, dusted her shoulder off and kept moving.</p>`}
+        <p>They moved through the narrowed channel past the buckle, the floor on the lower level holding under their feet. Then, without warning, the debris gave way.</p>
+        ${debrisScene}`;
+    },
+    next:'c7_junction',
+    onEnter() {
+      if (state.inventory.includes("Captain's logbook")) {
+        state.inventory.splice(state.inventory.indexOf("Captain's logbook"), 1);
+        state.logbookLost = true;
+      }
+      if (state.hessInjured && !state.hessPaced) state.hessInjuredWorse = true;
+    },
+  },
+
+  c7_junction: {
+    location:'Anton Anderson Tunnel, Midpoint',
+    render() { return `
+      <div class="ascii-art">${ASCII.mara_camp}</div>
+      <div class="scene-narrative">
+        <p>The midpoint junction was a broader section where the service passages reconnected to the main tunnel, the ceiling briefly lifting before narrowing again.</p>
+        <p>A small camp occupied the corner, eerily illuminated by a single, pale green chemical light on the floor. The space was a marvel of makeshift discipline: a supply cache, carefully salvaged from the service tunnel maintenance lockers, sat perfectly squared away beside a bedroll folded with sharp, practiced precision. Even the water filtration unit had been meticulously modified at the intake pipe. Cast in that equidistant, sickly glow, the entire setup felt less like a random hiding spot and more like a highly organised, orderly refuge.</p>
+        <p>A girl sat curled against the wall, her knees pulled tight to her chin. Though she appeared no older than ten, she watched them with a calm, composed attention. It was clear she had heard them coming from a long way off and somewhere in that quiet waiting, she had already decided exactly what she was going to do.</p>
+        <p>She did not speak first.</p>
+        <p>Neither did Sabrina.</p>
+      </div>`; },
+    next:'c7_mara_first',
+  },
+
+  c7_mara_first: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Hello.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I heard you from a long way off. The tunnels carry voices.</div>
+      </div>
+      <div class="scene-narrative"><p>Her tone was even and direct. Not unfriendly, but lacking warmth. It was the manner of someone who had spent a very long time alone. She looked at them both. Her gaze moved from Sabrina to Hess and lingered.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> You keep looking to the side. Like you're checking if someone is there.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I suppose I do.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Who is it?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Someone I'm trying to find.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Are they at the other end?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I think so.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> How long have you been looking?</div>
+      </div>
+      <div class="scene-narrative"><p>Hess looked at the far end of the tunnel before she answered.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> A long time.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara nodded once, the slow nod of someone deciding an incomplete answer is still true.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I have food. Do you want some?</div></div>
+      <div class="scene-narrative">
+        <p>She stood and moved to the supply cache with the efficiency of someone who knew exactly where everything was. She produced two additional chemical lights and two tins of something warm, extending her hands to offer them.</p>
+        <p>Sabrina took one and scooped out a mouthful. The food tasted of nothing in particular but it was exactly what her body needed. Across the pale green light, Hess cradled the other tin in both hands. She stared toward the far end of the tunnel for a moment, looked back down and started eating. She said nothing, but her shoulders settled a fraction by the time her tin was scraped clean.</p>
+      </div>`; },
+    next:'c7_mara_schooner',
+  },
+
+  c7_mara_schooner: {
+    render() {
+      let logbookSection;
+      if (state.logbookLost) {
+        logbookSection = `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I had it until the service tunnel. It fell out of my pack and I couldn't get back to it safely.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Do you remember what it said?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I remember everything I read.</div>
+      </div>
+      <div class="memory-flash">
+        <div class="memory-flash-label">◈ Memory</div>
+        <div class="memory-flash-text">
+          <p style="margin-bottom:0.8em;">The tear is widening. I have mapped it three times and each time the perimeter has grown. The Centre's projections assumed a stable boundary. They were wrong. They are often wrong about things they refuse to measure twice.</p>
+          <p style="margin-bottom:0.8em;">The creature knows. It has always known. I think that is why the Centre wants it contained, not because it is dangerous, but because things that know too much are inconvenient to manage. I have read what little they filed on the species. The reports call it a Leventhian. The last confirmed sighting was four years ago. The Centre closed the file and called it an operational non-priority.</p>
+          <p>I am leaving the schooner here. Whoever finds it, use it well. It knows where to go even when you do not.</p>
+        </div>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The captain had been tracking the tear himself and found it growing. He also knew about a creature in the lake. Called it a Leventhian.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> What's a Leventhian?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Something that lives very deep in the water. Very old. We saw its light from the deck. Blue and slow, like it had nowhere urgent to be.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I think I've heard it. Through the pipes sometimes, when everything is very quiet.</div>
+      </div>
+      <div class="scene-narrative"><p>She paused.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> It sounds like something massive, super far away, moving so slow.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That's a good description.</div>
+      </div>`;
+      } else if (state.inventory.includes("Captain's logbook")) {
+        logbookSection = `
+      <div class="scene-narrative"><p>Sabrina pulled the logbook from her pack and passed it across. Mara received it with both hands and read slowly, following the lines with a finger. When she finished, she closed it carefully and held it out.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> He left the ship for whoever needed it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Yes.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> And that was you.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That was us.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> The creature. The Leventhian. You saw it?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> We didn't see it directly, but we saw its light through the water.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I've heard it through the pipes when it's quiet. Something enormous and very far away.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That's the one.</div>
+      </div>`;
+      } else {
+        logbookSection = `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I only read parts of it. The captain had mapped the anomaly himself and found it growing, which the Centre preferred not to hear about. He also found a caged creature's diary: a firsthand account of what captivity felt like.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> What kind of creature?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Something that lives deep in the water. The Centre called it a Leventhian. They closed their file on it four years ago.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I've heard it through the pipes when it's quiet. Something enormous and very far away.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That's the one.</div>
+      </div>`;
+      }
+      return `
+      <div class="scene-narrative"><p>Mara gathered both empty tins and returned them to the cache.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Where did you come from? You were talking about a lake earlier. I heard it through the tunnel.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Underground lake. Before that, a cave large enough to have clouds near the ceiling. Before that, a desert where a stone statue let us in. Before <em>that</em>, a palace full of papers no one bothered to take when they left.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Clouds. In a cave.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The caves we went through have their own rules. You stop questioning it after a while.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> How did you get across the lake?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> There was a ship just waiting for us. Old sailing thing, copper and gold at the bow. Someone had left it there for whoever came through next. Moved without wind, seemed to know where it was going before we did. Very thoughtful of whoever left it, all things considered.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Was there stuff on it? Like someone had been there?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Logbook, provisions, a compass that points somewhere useful if not technically north. Whoever left it was thinking ahead.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> The person who left it. What did they write?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> They knew about the time tears. The tears in space and time that keep happening out there. They had been mapping them and found them growing, which the organisation we work for had refused to hear.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> What's a time tear?</div>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> When time and space stop behaving the way they should. Things ending up where they shouldn't be. We work for a group called the Centre of Command that's supposed to manage it.</div>
+      </div>
+      <div class="scene-narrative"><p>She considered.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> They have a very official name and limited results.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Is that what you are? People who fix things?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm an intern, which means I'm officially still learning to fix things. Unofficially I have descended several levels underground, crossed a lake on a ship that moved itself, navigated a cave with its own weather and I <em>still</em> have my hammer.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> What's she?</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at Hess.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Significantly less of a beginner.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara considered this.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> The logbook. What did it say?</div>
+      </div>
+      ${logbookSection}`;
+    },
+    next:'c7_mara_request',
+  },
+
+  c7_mara_request: {
+    render() { return `
+      <div class="scene-narrative"><p>Mara returned the last of the chemical lights to the cache. She was quiet for a moment. Then she turned to Sabrina.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's a door at the end of the tunnel. I've been trying to get it open for ages.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at the hammer at Sabrina's hip, then at the documents folder in her pack.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> You have the papers with the code. And that thing.</div>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Yes.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's also a lever on the side of the panel. It's rusted shut. I've tried everything I could find or reach. I can't move it.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at the hammer again.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Will you take me with you when you open it?</div>
+      </div>
+      <div class="scene-narrative"><p>A short, clean sentence. She had been waiting long enough that anything else would have been a waste of the time remaining.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I know the tunnel between here and the door. The bad bits. I can show you.</div>
+      </div>
+      <div class="scene-narrative"><p>She paused.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> And I've been stuck in the middle for a really long time. It's getting smaller. I can feel it getting smaller.</div>
+      </div>
+      <div class="scene-narrative"><p>Hess and Sabrina looked at each other.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> <em>(low, to Sabrina)</em> We don't know what's through that door.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> She's been at the boundary long enough to feel it moving.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Knowing the edge and surviving what's past it aren't the same thing.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No.</div>
+      </div>
+      <div class="scene-narrative"><p>A moment passed.</p></div>`; },
+    choices: [
+      { text:'"Yes. Come with us." She means every word of it.', next:'c7_mara_accept', onChoose() { raiseFlag('anchor'); state.maraAccepted = true; } },
+      { text:'Tell Mara she can\'t come. She doesn\'t know what\'s through the door and won\'t bring a child into something she can\'t see yet.', next:'c7_mara_decline', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c7_mara_accept: {
+    render() { return `
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Yes. Come with us.</div></div>
+      <div class="scene-narrative"><p>Mara received this without any visible change. Sabrina was beginning to understand that to Mara, the absence of visible change was relief.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Okay.</div></div>
+      <div class="scene-narrative">
+        <p>Reaching behind the cache, she retrieved a small backpack and swung it over her shoulders.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's a bad stretch of floor before the door. I'll show you when we get there.</div></div>`; },
+    next:'c7_toward_door',
+  },
+
+  c7_mara_decline: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I can't take you with us. I don't know what's through that door and I won't bring you into something I can't see yet.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I know you can't promise it'll be safe.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I can't even say if we'll be safe.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I know that.</div>
+      </div>
+      <div class="scene-narrative"><p>Hess said nothing. Another moment passed.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm sorry.</div></div>
+      <div class="scene-narrative">
+        <p>Mara went quiet and returned her backpack to its place behind the cache. She told them what they needed: the bad stretch of floor before the door, where the passage narrowed, how the panel was set up. She described it in the concrete language of someone who had navigated all of it alone, many times.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Good luck finding whoever you're looking for.</div>
+      </div>
+      <div class="scene-narrative"><p>She said it to Hess. Hess received it with a stillness that lasted one breath longer than usual.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Thank you.</div></div>`; },
+    next:'c7_toward_door',
+  },
+
+  c7_toward_door: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="scene-narrative">
+        <p>They moved.</p>
+        ${state.maraAccepted ? `<p>Mara walked ahead of them, moving through the final stretch with the quiet assurance of someone for whom this tunnel had become entirely familiar. She pointed out a warped section of floor before the torchlight found it, indicated a ceiling strut that had flexed inward. She spoke briefly and only when it mattered.</p>` : `<p>Mara's directions held true. When the bad stretch of floor appeared exactly where she had predicted, they carefully skirted around it.</p>`}
+        <p>Without warning, the character of the air resistance changed. Earlier, the tunnel had fought their every step. Here, closer to the exit, the pressure had subsided into a heavy, motionless weight. Moving through it wasn't hard, but the air no longer felt like air.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Something is different here.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> We're close to the door.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The air stopped resisting. I can breathe more easily now.</div>
+        ${state.maraAccepted ? `<div class="dialogue-line"><span class="dialogue-speaker">Mara</span> It gets heavier and heavier and then it stops getting heavier. And then you reach the door and everything goes very quiet.</div>` : ''}
+      </div>
+      ${state.maraAccepted ? `<div class="scene-narrative"><p>She said it from experience.</p></div>` : ''}
+      <div class="scene-narrative"><p>The lighting strips were sparser now. Two had failed, leaving a long stretch of near-dark where Hess's torch took over entirely. The concrete walls showed frost damage, the cold having worked into the panels over the decades. The passage narrowed. They moved in single file.</p></div>`; },
+    next:'c7_door_approach',
+  },
+
+  c7_door_approach: {
+    location:'Anton Anderson Tunnel',
+    render() { return `
+      <div class="ascii-art">${ASCII.tunnel_door_whittier}</div>
+      <div class="scene-narrative">
+        <p>The door was identical in design to the east entrance: same counterweight system, same concrete frame, same access panel set into the right wall. Two ends of one tunnel, built to the same specification.</p>
+        <p>The folder in Sabrina's backpack contained the west-end instructions. Page six, margin note six, a different sequence from the east entrance. She pulled the folder out.</p>
+        ${state.maraAccepted ? `<p>Mara stepped to one side and waited.</p>` : ''}
+        <p>The folder's cover was soft at the corners now, marked with the frost of the barracks room and the particular cold of the tunnel. She found the west-end section and the margin notes in the same handwriting she had learned to trust.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> West-end code is different from the east. The margin note overrides the main diagram.</div></div>`; },
+    choices: [
+      { text:'Enter the primary sequence from the main diagram first.', next:'c7_code_diagram' },
+      { text:'Go directly to margin note six. She learned that lesson once already.', next:'c7_code_margin' },
+    ],
+  },
+
+  c7_code_diagram: {
+    render() { return `
+      <div class="scene-narrative"><p>She entered the primary sequence. The panel registered the attempt with a low hum and reset.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Right. Margin note. As always.</div></div>
+      ${state.maraAccepted ? `<div class="scene-narrative"><p>Mara watched in silence.</p></div>` : ''}
+      <div class="scene-narrative"><p>She entered the margin note sequence. The mechanism engaged.</p></div>`; },
+    next:'c7_switch',
+  },
+
+  c7_code_margin: {
+    render() { return `
+      <div class="scene-narrative"><p>She went directly to margin note six and entered the sequence without hesitation. The mechanism engaged on the first attempt.</p></div>
+      ${state.maraAccepted ? `<div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> You've done this before.</div></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Once. Once was enough.</div></div>` : ''}`; },
+    next:'c7_switch',
+  },
+
+  c7_switch: {
+    render() { return `
+      <div class="scene-narrative"><p>The corroded switch had the same problem as before: decades of freeze and thaw, the metal seized into itself.</p></div>
+      ${state.maraAccepted ? `
+      <div class="scene-narrative"><p>Mara was already moving. She slipped into the gap between the panel housing and the wall, a gap too narrow for either adult; there, she pressed both palms flat against the switch housing. Her feet found the opposite surface.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I can hold it. You get it moving.</div></div>
+      <div class="scene-narrative"><p>With a deliberate, hard swing, Sabrina struck the switch with the hammer. Rust dust scattered into the still air. Mara held the switch down for three long seconds and the second stage of the mechanism engaged.</p></div>` : `
+      <div class="scene-narrative"><p>With a deliberate, hard swing, Sabrina struck the switch with the hammer, then pressed her palm against it for three seconds until the mechanism engaged.</p></div>`}
+      <div class="scene-narrative"><p>The lower panel revealed a CONFIRM button.${state.maraAccepted ? ' The three of them looked at it.' : ''}</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Who does it?</div></div>`; },
+    choices() {
+      const opts = [
+        { text:'Press it herself. She ran the whole sequence.', next:'c7_confirm_sabrina', onChoose() { raiseFlag('instinct'); } },
+        { text:'Step back and let Hess do it.', next:'c7_confirm_hess', onChoose() { raiseFlag('anchor'); } },
+      ];
+      if (state.maraAccepted) opts.push({ text:'Step back and look at Mara. She waited longest for this door to open.', next:'c7_confirm_mara', onChoose() { raiseFlag('anchor'); } });
+      return opts;
+    },
+  },
+
+  c7_confirm_sabrina: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She crouched to the lower panel and pressed the button.</p>
+        <p>A deep shifting sound came up through the floor and into her knees, something massive moving in its housing for the first time in decades. The counterweight cables went taut. The seal at the door's base separated, a thin thread of cold air bleeding through.</p>
+        <p>She stood up.</p>
+      </div>`; },
+    next:'c7_folder_choice',
+  },
+
+  c7_confirm_hess: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She stepped back. Hess crouched at the lower panel.</p>
+        ${state.hessInjured ? `<p>The crouch was careful and deliberate, her weight distributed forward before she bent her knee. She pressed the button.</p>` : `<p>She pressed the button.</p>`}
+        <p>The mechanism completed its cycle. The door began to open.</p>
+      </div>`; },
+    next:'c7_folder_choice',
+  },
+
+  c7_confirm_mara: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>Sabrina stepped back and looked at Mara.</p>
+        <p>Mara looked at the button, then up at Sabrina. Something profound flickered across her features and vanished. She stepped forward, pressing it with one flat finger.</p>
+        <p>The mechanism completed its cycle. The door began to open.</p>
+      </div>`; },
+    next:'c7_folder_choice',
+  },
+
+  c7_folder_choice: {
+    render() { return `
+      <div class="scene-narrative"><p>The door began its slow and tectonic opening. Sabrina clutched the technical documents folder she had carried through every passage and junction. That weight had finally bought them these two doors.</p></div>`; },
+    choices: [
+      { text:'Keep the folder. She carried it this far.', next:'c7_door_open', onChoose() { raiseFlag('anchor'); } },
+      { text:'Set it carefully against the access panel. It belongs here now, for whoever comes through next.', next:'c7_door_open', onChoose() { raiseFlag('instinct'); const i=state.inventory.indexOf('Technical documents folder'); if(i!==-1)state.inventory.splice(i,1); } },
+    ],
+  },
+
+  c7_door_open: {
+    location:'Whittier',
+    render() { return `
+      <div class="ascii-art">${ASCII.whittier_glimpse}</div>
+      <div class="scene-narrative">
+        <p>The door opened.</p>
+        <p>The tunnel went silent.</p>
+        <p>Every sound they had carried through the passage stopped at once: the footsteps, the water drip, the generator's vibration through the floor, the hollow echo of breathing. Gone, all of it, in an instant. Sabrina stepped through the door and the quiet pressed against her eardrums like something solid.</p>
+        <p>A flat, sourceless light lay over everything. It came from everywhere and cast no shadows. Mountains ahead and on both sides, rising into a white overcast without depth. The dark water of the bay held perfectly still below. Snow on the ground, every crystal in the position it had landed.</p>
+        <p>There were figures on the road, yet none of them moved. One person hung mid-stride with one foot lifted off the ground, suspended in the act of stepping. Another had her mouth open on a word she would never finish. A third had one arm raised toward something to the right, fingers spread and held there.</p>
+        <p>Their coats did not stir. Their breath did not fog.</p>
+        <p>At the end of the waterfront road stood a lone, towering building that held the entirety of Whittier's life under its roof. A handful of isolated windows threw a sharp, yellowed glow across the facade. Sabrina tracked the erratic layout, but the sequence offered no logical pattern. The randomness felt deliberate, as though a single mind had walked the interior halls to decide exactly where the light should stay on.</p>
+        <p>She looked at the frozen figures on the road.</p>
+        <p><em>They were in the middle of ordinary things,</em> she thought. <em>And then they stopped.</em></p>
+        ${state.hessInjured ? `<p>Sabrina recognized the slight irregularity of her first step on the frozen ground. It was the familiar shift of weight, then stillness.</p>` : ''}
+        ${state.hessCRMBroken ? `<p>Hess started to raise her wrist out of habit, the instinct of checking a device that no longer responded, then let her hand drop.</p>` : ''}
+        <p>Hess was not looking at the frozen people. She was looking at the building.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> All of them. Stopped.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Yes.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The building. Some of its lights are still on.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I see them.</div>
+      </div>
+      <div class="scene-narrative">
+        <p>She said it quietly, in the tone of someone who had been afraid of exactly this for a long time and was now standing in front of it.</p>
+        ${state.maraAccepted ? `<p>Behind them, Mara stepped through the door and stopped. She stood captivated by the frozen street, taking in the motionless figures, the mountains, the bay, the tower at the far end of the road with its patient, selective lights.</p>` : ''}
+      </div>
+      ${state.maraAccepted ? `<div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Whoa. So <em>this</em> is what's out here!</div></div>` : ''}
+      <div class="scene-narrative"><p>On the road ahead, one figure frozen mid-stride had been standing long enough for a thin, even layer of snow to settle on the raised sole of its shoe. It had been settling for a long time.</p></div>
+      <div class="scene-divider">◈</div>
+      <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;"><p>End of Chapter VII</p></div>`; },
+    isEndCh7: true,
+  },
+
+  // CHAPTER 8 ──────────────────────────────────────────────────
+
+  c8_opening: {
+    chapter:'Chapter VIII', chapterTitle:'The Frozen World',
+    headerChapter:', Ch. VIII', location:'Whittier',
+    render() { return `
+      <div class="ascii-art">${ASCII.whittier_arrival}</div>
+      <div class="scene-narrative">
+        <p>The light lay over everything equally.</p>
+        <p>It came from everywhere at once, as if the whole sky had been turned into a single diffused source with no point of origin and no direction. Mountains, road, bay, building faces: all received the same flat grey illumination. The shadows that should have fallen from every solid thing were simply absent.</p>
+        <p>Sabrina stepped forward off the tunnel threshold.</p>
+        <p>Time itself seemed to have stalled: the whole town had been frozen mid-motion, caught between one action and its consequence. The figures on the waterfront road were as she had seen them from the tunnel exit: the first was mid-stride with a raised foot, snow accumulating on the sole; the second had stopped mid-word, mouth shaped around a sound they would never finish; and the third stood with one arm extended and fingers spread, pointing northeast along the road.</p>
+        <p><em>Interrupted,</em> she thought. <em>That was the word for it.</em></p>
+        <p>Two buildings dominated the town. The larger one sat back from the road to the northeast, massive and wide, its upper floors partially open to the sky. The other occupied the far end of the waterfront road, tall and rectangular, some of its windows carrying a pattern of lit rooms she had been tracking since the tunnel exit.</p>
+        ${state.hessCRMBroken ? `<p>Hess's hand moved toward her left wrist, made it halfway and came back. She was looking at the tall building at the far end of the road.</p>` : ''}
+        ${state.maraAccepted ? `<p>Mara had stepped off the threshold ahead of them and was turning in a slow circle, taking in the frozen town.</p>` : ''}
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Hess, what are those two structures?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That's the Buckner Building to the northeast,</div>
+      </div>
+      <div class="scene-narrative"><p>she said, keeping her eyes fixed on the far end of the road.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It's an old military footprint, cleared out long ago. And that concrete block at the terminus is called Begich Towers. Fourteen storeys tall.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The whole population...</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> They're all inside. The building contains the post office, the school, the clinic and the housing units. Everything stays under one roof because the winters here made the alternative impractical.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina kept her eyes on the distant windows, the pattern of lit rooms holding its positions against the grey mountain face.</p></div>
+      <div class="scene-narrative"><p><em>An entire settlement packed into a single structure,</em> she thought. <em>Efficient. Or the next best thing to containment.</em></p></div>
+      ${state.maraAccepted ? `
+      <div class="scene-narrative"><p>Mara had finished looking around and her gaze also settled on the Begich Towers.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> The whole town. In one building.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Yes.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara went quiet for a moment.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> That's either very safe or very dangerous.</div></div>
+      <div class="scene-narrative"><p>She did not clarify which.</p></div>` : ''}`; },
+    choices: [
+      { text:'Walk to the mid-stride figure.', next:'c8_figure_close', onChoose() { raiseFlag('observer'); } },
+      { text:'Look for what the third figure is pointing at.', next:'c8_figure_pointing', onChoose() { raiseFlag('instinct'); } },
+      { text:'Stand still and take in the whole street first.', next:'c8_street_pause', onChoose() { raiseFlag('anchor'); } },
+    ],
+  },
+
+  c8_figure_close: {
+    render() { return `
+      <div class="ascii-art">${ASCII.frozen_detail}</div>
+      <div class="scene-narrative">
+        <p>She crouched in front of the mid-stride figure.</p>
+        <p>The woman's coat was open. The weather had been mild when time stopped, or she had been moving quickly enough not to care. One foot was raised with the full forward swing of a walking pace. On the sole of that raised shoe, snow had settled in fine dry layers. Sabrina tried to read the timeline in the accumulation. Her training suggested a matter of seasons. Her instinct told her the world had been standing still far past any normal winter.</p>
+        <p>She looked at the face. The expression was entirely clear: the absorbed preoccupation of someone caught mid-thought when the world stopped.</p>
+        <p><em>I will never know what it was.</em></p>
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara had stopped a few metres behind her. She was looking at the road surface rather than the figure.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's no shadow. None of them have one.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina looked down. Mara was right.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No source angle.</div>
+      </div>
+      <div class="scene-narrative"><p>She kept looking.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Nothing to cast them from.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Is that because of what happened to the time?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The wrongness here is consistent. I'll reserve judgment until I've seen more of it.</div>
+      </div>` : '</div>'}
+      `; },
+    next:'c8_road',
+  },
+
+  c8_figure_pointing: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She traced the line of the extended arm: the fingers pointed sharply northeast and the figure's whole frozen posture insisted on that direction. Following the bearing, her eyes found the massive structure set back from the road: the Buckner Building, as Hess had called it. Even from this distance it read as a place that had been emptied deliberately: windows were absent and the upper floors were partially collapsed.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Someone was pointing at the Buckner Building when time stopped.</div></div>
+      ${state.maraAccepted ? `
+      <div class="scene-narrative"><p>Mara came to stand beside her, eyes tracking down the frozen arm to follow where it aimed.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> What was it for?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It served a largely administrative role in its later years, but it started as a troop barracks: a facility designed entirely for people who had no choice but to be here.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara looked at it for a moment.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> It looks like it was built by someone who didn't like the people inside it very much.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina glanced at Mara. It was not a bad reading of the architecture.</p></div>` : ''}`; },
+    next:'c8_road',
+  },
+
+  c8_street_pause: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She stood still.</p>
+        <p>The waterfront road ran from the tunnel mouth to the Towers at the far end. The frozen figures were distributed across it in the ordinary density of daily activity.</p>
+        <p>She counted what she could see from here: a man wrapping both arms around bags of groceries, two people frozen mid-conversation with one body angled toward the other, and a child caught running with both feet off the ground, arms pumping full tilt.</p>
+        <p>It was the preservation of a moment that nobody knew was being preserved.</p>
+        ${state.sawBlueLight ? `<p>The image of Lidenbrock Lake returned to her: the stillness of its water and the blue light moving in slow, deliberate arcs deep beneath the surface. This frozen town was a different register of that same quality, dark instead of bright, living instead of arrested. Both places occupied her mind simultaneously, neither one eclipsing the other.</p>` : ''}
+        <p>She breathed in slowly.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm sorry this happened to you.</div></div>
+      <div class="scene-narrative"><p>She said it to the street. The street did not respond. She had not expected it to.</p></div>`; },
+    next:'c8_road',
+  },
+
+  c8_road: {
+    location:'Whittier',
+    render() { return `
+      <div class="ascii-art">${ASCII.whittier_road}</div>
+      <div class="scene-narrative">
+        <p>They continued to move.</p>
+        ${state.maraAccepted ? `<p>Mara walked a half-pace ahead of them, looking at the frozen figures they passed rather than the road itself. She gave each one a brief, even attention, keeping whatever she thought of them to herself.</p>` : ''}
+        ${state.hessInjuredWorse ? `<p>Hess's stride carried the small correction Sabrina had been watching for since the tunnel: the weight slightly redistributed, the right side carrying more. The icy ground offered no cushioning beneath her feet.</p>` : ''}
+        <p>The Buckner Building loomed larger with each step. Up close, the abandonment of it was complete: concrete facades stripped of anything removable, windows absent from their frames, the upper floors open to the overcast sky in two places where sections of the structure had come down over time. The entrance was accessible, but the doors were long gone. Cold air moved from the interior, carrying the scent of old concrete, rust and a faint hint of dry paper.</p>
+      </div>`; },
+    next:'c8_buckner_exterior',
+  },
+
+  c8_buckner_exterior: {
+    location:'The Buckner Building',
+    render() { return `
+      <div class="ascii-art">${ASCII.buckner_exterior}</div>
+      <div class="scene-narrative">
+        <p>Up close, the Buckner Building communicated its purpose plainly. Five storeys of reinforced concrete built with no concession to the people who would use it, the facade bearing the marks of long abandonment: staining, frost damage along the joints, a section of parapet collapsed at one corner where decades of freeze cycles had finally won their argument. The windows that remained were frameless holes. Where the structure had partially come down, the interior lay open to the same grey sky.</p>
+        <p>Even as a ruin, it remained formidable: a massive structure built for human activity, now stripped of all life.</p>
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara stepped up to the threshold. She was studying it from the doorway, hesitating to go in.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> It smells like paper.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Old paper.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Is that where they kept the records?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Among other things.</div>
+      </div>` : '</div>'}
+      `; },
+    next:'c8_buckner_map',
+  },
+
+  c8_buckner_map: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>They crossed the threshold. The ground floor had been stripped to its bones. Faint outlines of paint still marked the walls for operations, supply and maintenance, while the concrete was left bare by workers who clearly had the time to dismantle every fixture with care. In the lobby, a large fold-out map was pinned above a defunct information board. She pulled it down: a town plan, hand-labelled, showing the whole of Whittier's waterfront road from the tunnel entrance at the east to the Towers at the west, with the Buckner Building marked by name in the middle, the dock and bay to the south.</p>
+      </div>
+      <div class="found-doc">
+        <div class="found-doc-label">◈ Document found, Whittier town plan, fold-out</div>
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p class="found-doc-ascii">   ^  ^  ^  ^  ^  ^  mountains  ^  ^  ^  ^  ^
+  |                                             |
+  |  [ B U C K N E R ]                         |
+  |         |                                   |
+  | [TUNNEL]+·····road·····················[TOWERS]
+  |                                         |   |
+  |                                    [ dock ] |
+  |_____________________________________________|
+   ~  ~  ~  P a s s a g e   C a n a l  ~  ~  ~</p>
+          <p><em>Hand-printed note along the map's bottom edge, faded but legible: "Population: 217. One road in. One road out."</em></p>
+        </div></div>
+      </div>
+      <div class="scene-narrative"><p>She looked at the layout for a moment. The bay ran the full southern length of the town. The Towers anchored the far end of the road, a dock extending from its base into the canal. The tunnel mouth sat at the northeast corner, the way they had come in. The Buckner Building stood between the tunnel and the Towers, a short distance off the road.</p></div>
+      <div class="scene-narrative"><p>She read the hand-printed note aloud.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> "Population: 217. One road in. One road out."</div></div>
+      <div class="scene-narrative"><p>The words trailed off into nothing.</p></div>
+      ${state.maraAccepted ? `
+      <div class="scene-narrative"><p>Mara had leaned in to look at the map over Sabrina's arm.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Is this where we are?</div>
+      </div>
+      <div class="scene-narrative"><p>She pointed at the Buckner Building marker.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Yes.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara traced the road with one finger from the Buckner marker to the Towers.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> And that's where we're going.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That's where we're going.</div>
+      </div>` : ''}`; },
+    choices: [
+      { text:'Take it. A physical map of this town may be useful inside the Towers.', next:'c8_map_take', onChoose() { raiseFlag('anchor'); } },
+      { text:'Commit it to memory and leave it pinned to the wall. Her memory already holds every detail.', next:'c8_map_leave', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c8_map_take: {
+    render() { return `<div class="scene-narrative"><p>She folded it carefully along its original creases and tucked it inside her jacket.</p></div>`; },
+    next:'c8_buckner_enter',
+    onEnter() { addItem('Whittier town plan'); },
+  },
+
+  c8_map_leave: {
+    render() { return `<div class="scene-narrative"><p>She looked at it for another few seconds. Then she repinned it to the wall. It had been here long enough to be part of the building. It could stay.</p></div>`; },
+    next:'c8_buckner_enter',
+  },
+
+  c8_buckner_enter: {
+    render() { return `
+      <div class="scene-narrative"><p>Two corridors extended from the entrance hall. Left: the paper smell came from that direction, stronger now that they were inside, toward the administrative and communications sections. Right: wider, darker, carrying the smell of cold machinery. Maintenance and storage, built for equipment rather than people.</p></div>`; },
+    choices: [
+      { text:'Take the left corridor, toward the paper smell.', next:'c8_wing_admin', onChoose() { raiseFlag('observer'); } },
+      { text:'Take the right corridor, toward the maintenance section.', next:'c8_wing_maintenance', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c8_wing_admin: {
+    render() { return `
+      <div class="ascii-art">${ASCII.buckner_admin}</div>
+      <div class="scene-narrative">
+        <p>The administrative wing narrowed then widened into a sequence of connected rooms: stripped offices, a communications centre with only its framework remaining, corridors whose overhead paint still held the ghost of function labels. OPERATIONS. RECORDS.</p>
+        ${state.maraAccepted ? `<p>Mara had drifted ahead, checking each doorway as she passed. She stopped at one.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's one here with papers still in it.</div></div>
+      <div class="scene-narrative">
+        <p>The door still read OPERATIONS in faded paint. A frameless window let in the best remaining light in the wing.</p>` : `<p>At the north end of the wing stood a room whose door still read OPERATIONS in faded paint. A frameless window gave the best remaining light.</p>`}
+      </div>
+      <div class="scene-narrative"><p><em>OPERATIONS.</em> Still legible after everything else had been stripped away.</p></div>
+      <div class="memory-flash">
+        <div class="memory-flash-label">◈ Memory</div>
+        <div class="memory-flash-text">Once in a while one of them throws me a spiteful smirk and bellows at me in a language I cannot understand. It wants me to do something, I am sure of it, but I can never tell what that something is... They call me a caged monster. But all the monsters that I see are all outside of this cage.</div>
+      </div>
+      <div class="scene-narrative"><p>Inside stood a work table, a stripped communications board bearing only its tag labels and a filing cabinet against the left wall. Its top two drawers were empty. The bottom drawer held a single manila folder with two pages inside.</p></div>`; },
+    next:'c8_document_1',
+  },
+
+  c8_document_1: {
+    render() { return `
+      <div class="scene-narrative"><p>There were two pages inside the folder: the first was printed, dense and technical, while the other was a different type of paper, lighter and more textured. The second page was covered in handwriting she had seen before. It matched the handwriting of the poem from the Jeep's glovebox. She had no name for the language, but Hess clearly knew it intimately.</p></div>
+      <div class="scene-narrative"><p>She read the printed one first.</p></div>
+      <div class="found-doc">
+        <div class="found-doc-label">◈ Document found, printed technical documentation, CRM system configuration</div>
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p><strong>REFRESH STORE — CRM Mode</strong></p>
+          <p>The ICD store is refreshed by Gaia. In the callback function of <code>gaia::Gaia_Hestia::DispatchCurrentConfig</code>, items can be retrieved and displayed.</p>
+          <p><strong>Update: Gaia revision 10316, ICD 1047</strong><br>New flow: after <code>InitializeCRM()</code> from <code>Gaia_Hestia</code>, the ICD library will have a CRM configuration ready (default or latest cached on device). Items must be displayed in the <code>InitializeCRM</code> callback, not only in <code>DispatchCurrentConfig</code> or <code>DispatchDefaultConfig</code>.</p>
+          <p><em>This covers the NonFed case where Pandora is shut down.</em></p>
+        </div></div>
+      </div>
+      <div class="scene-narrative"><p>She set the printed page down and turned to the second sheet.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Same fancy penmanship and language as before.</div></div>
+      <div class="scene-narrative"><p>She held out the documents and Hess took them both.</p></div>
+      <div class="scene-narrative">
+        ${state.hessCRMBroken ? `<p>As she reached for the pages, two fingers of Hess's right hand grazed her left wrist, briefly revealing her terminal's unresponsive screen.</p>` : ''}
+        <p>Hess read the printed page without a change in expression. Turning to the handwriting, something shifted in the set of her jaw, a movement that was small, deliberate and entirely under her control.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> What does the handwriting say?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> It says: "For the gods, not even at work am I free of her. Gaia above everything, Gaia below everything. We are half-cursed to be followed by her shadow wherever we go. How is your version of Gaia doing?"</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> "<code>gaia::Gaia_Hestia::DispatchCurrentConfig</code>."</div>
+      </div>
+      <div class="scene-narrative"><p>She looked at Hess.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Your name is in the function signature.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> The CRM verification system runs its routing through divine names as anchor points. Mine was one of them.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked back toward the dark corridor.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> They didn't consult us on the branding. Keep reading.</div>
+      </div>
+      <div class="scene-narrative"><p>She turned back to the printed text.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> "This covers the NonFed case where Pandora is shut down."</div>
+      </div>
+      <div class="scene-narrative"><p>She let the words hang in the air.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The verification layer has been offline for a while, hasn't it?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Pandora has been offline for some time. Yes.</div>
+      </div>
+      <div class="scene-narrative"><p>She said nothing more about Pandora.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Every CRM running without that backbone would accumulate failures silently. No repair pushes, no error flags. Just slow drift toward nothing.</div>
+      </div>
+      <div class="scene-narrative"><p>She looked up.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That generator in the tunnel. Running on no fuel for years. No one flagged it, no one sent a repair. Just carrying on without anyone to report to. That's what this looks like in practice.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That's a reasonable guess.</div>
+      </div>
+      <div class="scene-narrative"><p>She folded both pages and placed them in her jacket pocket.</p></div>`; },
+    next:'c8_document_response',
+    onEnter() { state.lexCRMDoc = true; },
+  },
+
+  c8_wing_maintenance: {
+    render() { return `
+      <div class="ascii-art">${ASCII.buckner_maintenance}</div>
+      <div class="scene-narrative">
+        <p>The right corridor widened into the service infrastructure of the building: rows of pipes lining the ceiling, junction boxes stripped to their casings, the wide practical floors of sections built for equipment rather than people.</p>
+        ${state.maraAccepted ? `<p>Mara had moved ahead and at some point had wandered further into the space than Sabrina anticipated. Her voice came from around a bend in the passage.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's something different back here. The smell changed.</div></div>
+      <div class="scene-narrative">
+        <p>She was standing in front of a metal storage unit in the corner of what had been a loading and distribution area. Wide floor space, loading door frames stripped of their hardware. Most of it had been cleared. The unit in the corner had been missed, too heavy to move quickly or too far from the door for anyone to bother with at the end.</p>` : `
+        <p>The corridor opened into a loading and distribution area: high ceiling, wide floor, loading door frames stripped of their hardware. Most had been cleared. In the corner, a metal storage unit remained, too heavy to move in a hurry or past the point where anyone cared.</p>`}
+        <p>The door was dented rather than locked. Sabrina's hammer opened it on the second strike, a loud crack filling the whole space and coming back from the ceiling.</p>
+      </div>
+      ${state.maraAccepted ? `<div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Is everything in this world opened with a hammer?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Only if you want to get inside faster. Let's see what they hid.</div>
+      </div>` : ''}
+      <div class="scene-narrative"><p>Someone had organised the interior expecting to return, leaving behind a sealed tool container, emergency rations in waxed paper, and a folded sheet of thin thermal paper tucked behind a circuit manual at the back. She unfolded it. At the top was an unfamiliar system header; below it, a dense block of structured characters.</p></div>
+      ${state.maraAccepted ? `<div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> That's not regular text.</div></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> It's called a CRM log.</div></div>` : ''}
+      <div class="scene-narrative"><p>She scanned the structure. <code>model: unknown</code>. <code>credential: anonymous</code>. <code>Client desynced: Cannot place building</code>.</p></div>`; },
+    next:'c8_document_2',
+  },
+
+  c8_document_2: {
+    render() { return `
+      <div class="found-doc">
+        <div class="found-doc-label">◈ Document found, thermal printout, CRM system error log</div>
+        <div class="found-doc-inner"><div class="found-doc-text">
+          <p style="font-family:monospace; font-size:0.78rem; line-height:1.7;">{ "clientid": "1897:55612:2.6.0",<br>&nbsp;&nbsp;"version": "2.6.0n",<br>&nbsp;&nbsp;"pid": 1897,<br>&nbsp;&nbsp;"credential": "anonymous:aXBob25lX7...",<br>&nbsp;&nbsp;"device": { "firmware": "8.4.0", "id": "3040027271", "model": "unknown" },<br>&nbsp;&nbsp;"mssg": "Client desynced: Cannot place building",<br>&nbsp;&nbsp;"level": "warning",<br>&nbsp;&nbsp;"action": { "category": "desync / FED-request",<br>&nbsp;&nbsp;&nbsp;&nbsp;"operation": "place_building / OP_Code",<br>&nbsp;&nbsp;&nbsp;&nbsp;"response_code": 200,<br>&nbsp;&nbsp;&nbsp;&nbsp;"value": "DML_Fire_Habitat / response",<br>&nbsp;&nbsp;&nbsp;&nbsp;"platform": "unknown",<br>&nbsp;&nbsp;&nbsp;&nbsp;"retail": true } }</p>
+        </div></div>
+      </div>
+      <div class="scene-narrative"><p>Below the printed log, thera was a handwritten note in the same unrecognisable language from the wasteland poem.</p></div>
+      <div class="scene-narrative">
+        <p>She looked at Hess's wrist, then back at the <em>model: unknown</em> entry. She passed the printout across. Hess took it and read without comment. Then she looked at the handwriting below the log and went very still.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> What does the handwriting say?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That the implant started on its own. And that they couldn't make sense of what the system was projecting.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> An implant, you say? Then this log must be from a subdermal CRM.</div>
+      </div>
+      <div class="scene-narrative"><p>She kept her voice level.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> <em>Model: unknown.</em> Device the Centre had no record of. Activated without input. Desyncing on a building operation.</div>
+      </div>
+      <div class="scene-narrative"><p>She stopped there. Hess looked at the handwriting for another moment. Then she folded the printout and placed it in her jacket pocket.</p></div>`; },
+    next:'c8_document_response',
+    onEnter() { state.lexImplantDoc = true; addItem('Emergency rations'); },
+  },
+
+  c8_document_response: {
+    render() { return `<div class="scene-narrative"><p>Hess put the document away, bringing her usual firm silence to a topic she refused to discuss.</p></div>`; },
+    choices: [
+      { text:'Let it close. She has pressed once and received what Hess was prepared to give.', next:'c8_doc_close', onChoose() { raiseFlag('anchor'); } },
+      { text:'Ask one more question, not for the information itself but so Hess knows she is not carrying this alone.', next:'c8_doc_push', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c8_doc_close: {
+    render() { return `<div class="scene-narrative"><p>She accepted it.</p><p><em>That's alright,</em> she thought. <em>I have time.</em></p></div>`; },
+    next:'c8_rations',
+  },
+
+  c8_doc_push: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I have a working theory. You don't need to confirm it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Keep it to yourself, then.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Alright, fine.</div>
+      </div>`; },
+    next:'c8_rations',
+  },
+
+  c8_rations: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The pattern was the same throughout the building. Every wing held a neat inventory of equipment, meticulously organised and then abandoned.</p>
+        ${state.lexImplantDoc ? `<p>The storage unit yielded a medical kit alongside two emergency blankets and several days of emergency rations in vacuum-sealed packs, past their label date but still sealed and viable.</p>` : `<p>A supply room off the administrative corridor, missed in the evacuation, yielded a medical hard case (military-issue, contents largely expired, antiseptic and bandaging still viable) and two cold-weather emergency blankets sealed in wax-cloth wrapping.</p>`}
+        ${state.inventory.includes('Military ration bars') ? `<p>They ate the last of the ration bars while searching, staying on their feet because nothing in the Buckner Building invited sitting down. Military rations tasted like someone had described food to a procurement committee from memory. By the time the search was done, the bars were gone.</p>` : ''}
+        ${state.maraAccepted ? `<p>Sabrina passed a blanket to Mara, who tucked it away without comment, and kept the other for herself.</p>` : `<p>Sabrina grabbed both blankets and tucked them into her pack.</p>`}
+        ${state.hessInjured ? `
+      </div>
+      <div class="scene-narrative"><p>She passed the antiseptic to Hess without asking for an explanation. Hess looked at it for a moment, then accepted it.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I managed in the tunnel.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> You managed in the tunnel with no antiseptic. Now you have antiseptic.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> That's a fair distinction.</div>
+      </div>` : '</div>'}
+      `; },
+    next:'c8_buckner_exit',
+    onEnter() {
+      addItem('Medical kit (antiseptic and bandaging)');
+      addItem('Emergency blanket');
+      const ri = state.inventory.indexOf('Military ration bars');
+      if (ri !== -1) state.inventory.splice(ri, 1);
+    },
+  },
+
+  c8_buckner_exit: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>They came back through the corridor, past the ghost labels of former rooms, to the threshold where old concrete ended and frozen Whittier began.</p>
+        <p>Sabrina stopped at the doorway. Behind her, the building was a shell: organised for one purpose, then emptied of the people who gave that purpose meaning. It stood intact, waiting. Inside, she had found traces of someone who once stood in that same cold corridor, entirely unaware of what they were leaving behind.</p>
+        ${state.hessCRMBroken ? `<p>Hess checked her wrist without thinking, found nothing had changed, then kept walking. The habit had outlasted the device.</p>` : ''}
+        <p>They stepped back out into the flat sourceless light.</p>
+      </div>`; },
+    next:'c8_waterfront',
+  },
+
+  c8_waterfront: {
+    location:'Whittier Waterfront',
+    render() { return `
+      <div class="ascii-art">${ASCII.passage_canal}</div>
+      <div class="scene-narrative">
+        <p>The map gave her an idea of the bay, but the actual scale of it forced her to revise the mental picture she'd taken from the paper. The Passage Canal ran the full southern length of Whittier's road, wide and now frozen solid, the ice extending to the mountains on the far shore. Pressure ridges had pushed up across its surface at the moment of freezing and held their shape, marking the place where the water had been moving when time stopped.</p>
+        <p>A working vessel was docked at the pier to their left, its bow rope frozen mid-sag in a diagonal from dock cleat to bow ring, caught in the mundane stillness of a vessel at rest when time stopped.</p>
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara stepped up to the edge of the waterfront and crouched, looking down through the surface.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I can see the bottom.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> In the shallows, yes. The pressure ridges mark where the currents were running when it froze.</div>
+      </div>
+      <div class="scene-narrative"><p>Mara went quiet for a moment, studying the ice.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's a fish down there.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Frozen mid-swim.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Everything just stopped.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> At once. And then it stayed that way.</div>
+      </div>` : '</div>'}
+      `; },
+    choices: [
+      { text:'Stand at the waterfront edge and let the scale of it sink in.', next:'c8_waterfront_stand', onChoose() { raiseFlag('anchor'); } },
+      { text:'Check the docked boat. A working vessel would have been stocked.', next:'c8_waterfront_boat', onChoose() { raiseFlag('observer'); } },
+      { text:'Walk out onto the pier and look down at the ice from above.', next:'c8_waterfront_pier', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c8_waterfront_stand: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She stood at the waterfront edge. The far shore was distant enough that the individual trees on the mountainside were not distinct, a frozen expanse that had been water and now held the hard permanence of something that had forgotten how to move.</p>
+        <p>She had been underground for so long that the vast, grey sky took her breath away before she could even process the view.</p>
+        ${state.sawBlueLight ? `<p>Memories of the Lidenbrock Lake came back to her: the stillness of its water, the blue light moving in slow deliberate arcs far beneath the surface. This frozen canal was a different manifestation of the same oppressive scale, dark instead of bright, living instead of arrested. Both places occupied her mind simultaneously, neither one eclipsing the other.</p>
+        <p><em>It is still moving down there,</em> she thought. <em>In the dark, regardless of what happened to the rest of the world above it.</em></p>` : ''}
+      </div>`; },
+    next:'c8_compass_incident',
+  },
+
+  c8_waterfront_boat: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The docked vessel was a small working boat, built for local supply runs. The cabin door was unlocked.</p>
+        <p>Inside, a forward locker yielded a waterproof kit bag. She found two road flares, a length of usable rope and a hand-crank torch with a functional mechanism, along with two tins of food. Their labels had rotted away, but the cans remained sealed tight.</p>
+        <p>She took the rope and the torch, but left the tins behind. If the labels had rotted away, she reasoned the food inside would be in the same state.</p>
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara had not followed her aboard. She was standing on the dock when Sabrina re-emerged.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> I wasn't sure about going in. The boat still belongs somewhere.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> So does this rope. I took it anyway.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> A rope goes wherever you carry it. A boat stays tied where someone left it for a reason.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina considered the distinction. It was more principled than most operational guidelines she had worked under.</p></div>` : '</div>'}
+      `; },
+    next:'c8_compass_incident',
+    onEnter() { addItem('Hand-crank torch'); addItem('Rope (serviceable)'); },
+  },
+
+  c8_waterfront_pier: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She walked out onto the pier. The dock boards were frozen solid, their grain locked in ice, a surface that had stopped mid-winter and held fast ever since. She walked to the end of the pier and looked down.</p>
+        <p>The ice below was clear in the shallows, the frozen surface showing the last movement of the water beneath it: small standing waves arrested mid-crest, their shapes preserved by the freeze. Below them, maybe four metres down, the bottom was visible. Rocks, sediment and the dead stillness of a world that had stopped all the way down. She looked at it for a long moment.</p>
+        ${state.sawBlueLight ? `<p>The Lidenbrock Lake surfaced in her mind: standing at the rail of the schooner, looking down at a body of water with something moving in its depths, indifferent to the world above. She had watched the blue light back then without fully understanding it. She thought she did now.</p>` : ''}
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara had followed her out onto the pier without announcing it. She was crouching at the edge, looking down through the ice.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> It goes all the way down.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Even at the bottom. The pressure didn't stop it. It's solid all the way down.</div>
+      </div>` : '</div>'}
+      `; },
+    next:'c8_compass_incident',
+  },
+
+  c8_compass_incident: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The waterfront fell behind them. They walked the final stretch toward the Towers, the building growing with each step, its lit windows unchanged. Partway along that stretch, Sabrina felt a vibration in her jacket pocket. It started as a faint quiver against her ribs, then hardened into a frantic, violent shudder.</p>
+        <p>She stopped walking.</p>
+        <p>Her jacket was a heavy, reliable anchor, a thick fabric that was meant to stay still. The vibration coming through it now was not from the wind or the walk.</p>
+        <p>The vibration was coming from inside the pocket where she had kept the compass since the schooner.</p>
+        <p>The compass had been spinning since the Lidenbrock Lake, its needle making continuous, unhurried rotations in its casing, pointing at something that was not north. In a world where all kinetic movement had been arrested, where even floating dust motes were locked mid-air, a continuously spinning needle was an object that had no right to exist. The frozen world appeared to have finally noticed the contradiction and decided to correct it.</p>
+        <p>As she held her hand against the pocket, the frantic vibration of the metal suddenly dissolved into an intense, blooming heat.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The compass.</div></div>
+      <div class="scene-narrative"><p>She plunged her hand inside, but the casing had already surged past warm. It was blistering, the sudden, white-hot flash of kinetic energy converted all at once with no path for dissipation. She yanked her hand back and shook it once, hard, her mind already made up.</p></div>`; },
+    choices: [
+      { text:'Invert the pocket and drop the compass onto the road immediately.', next:'c8_compass_throw', onChoose() { raiseFlag('instinct'); } },
+      { text:'Try to pry it open first. The casing may still have something worth salvaging.', next:'c8_compass_salvage', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c8_compass_throw: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She grabbed the outside of the pocket with her left hand, twisted the fabric to invert it and the compass dropped onto the frozen road without her having to touch the metal.</p>
+        <p>The moment it struck the ground, it locked into instant rigidity, welded to the frozen timeline, the spin it had been trying to complete crystallising into permanent immobility. A thin curl of vapour rose from the metal casing and stopped rising.</p>
+        <p>She stood over it.</p>
+        <p>The compass had pointed to something that was not north since she first picked it up on the schooner. It had guided them across the Lidenbrock Lake, through a cave system with its own weather, across a continent and then another. It had stopped working when they arrived in Whittier, which was to say, it had stopped working when they arrived where it had been pointing.</p>
+        <p>It had done its job.</p>
+      </div>`; },
+    next:'c8_towers_approach',
+    onEnter() { const i=state.inventory.indexOf('Warm compass (needle points elsewhere)'); if(i!==-1)state.inventory.splice(i,1); },
+  },
+
+  c8_compass_salvage: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She pulled the compass out by its edge, gripping the casing through the jacket fabric to buffer against the heat, and dug her thumb into the corroded clasp. For a terrible moment it refused to budge. Then the metal gave way.</p>
+        <p>The case opened.</p>
+        <p>The heat seared her palm in a sharp, blinding spike. She hurled the compass away before the worst of the burn could register, throwing it hard. It struck the frozen ground and locked instantly on impact, trapped by the freeze. Its rising vapour snapped into a motionless plume mid-air.</p>
+        <p>Sabrina looked at her right hand. The palm and first two fingers were already blistering, deep and wet from the base knuckle up. There was no hospital in Whittier, but they had the medical kit. She flexed her fingers and they responded, but she didn't do it twice, unwilling to invite more pain.</p>
+      </div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Sabrina!</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I'm aware. The world dislikes kinetics. Message received.</div>
+      </div>
+      <div class="scene-narrative"><p>She said it flatly, but her fingers had already curled inward to shield the palm.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Let me see the hand before you try to use your hammer with blistered fingers.</div>
+      </div>
+      <div class="scene-narrative"><p>Sabrina held her hand out. Hess looked at it with the focused attention she gave to problems that needed solving.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Hess</span> Let's see what's in that medical kit.</div></div>
+      <div class="scene-narrative"><p>They stopped. Hess worked on Sabrina's hand with antiseptic and bandages, her movements quick and precise, refusing to let discomfort interfere with function. The solution stung, but the wrap went on firm and correct.</p></div>
+      ${state.maraAccepted ? `
+      <div class="scene-narrative"><p>Mara watched from a few steps away. When Hess closed the medical case, Mara looked at Sabrina's bandaged hand.</p></div>
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Why did you try to open it?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I wanted to see if there was anything left worth keeping before I lost it.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> Was there?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No. But now I know for certain.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Mara</span> That seems like a very painful way to find out.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> That's usually how it works.</div>
+      </div>` : ''}`; },
+    next:'c8_towers_approach',
+    onEnter() {
+      state.sabrinaHandBurn = true;
+      const i=state.inventory.indexOf('Warm compass (needle points elsewhere)'); if(i!==-1)state.inventory.splice(i,1);
+    },
+  },
+
+  c8_towers_approach: {
+    location:'The Begich Towers',
+    render() { return `
+      <div class="ascii-art">${ASCII.towers_approach}</div>
+      <div class="scene-narrative">
+        <p>The Begich Towers occupied the very end of the waterfront road. Up close, the building revealed the massive scale that distance had compressed: fourteen storeys of wide, weathered concrete, designed to be entirely self-contained. It held schools, shops, medical facilities and a post office. Everything a community needed was stacked inside a single structure, built that way because the winters out here made it impossible to live anywhere else.</p>
+        <p>From here, the lights resolved into a distinct pattern. Three windows glowed on the fourth floor and a single light burned on the seventh. Higher up, a long, corridor-wide rectangle of light cut across the eleventh floor, suggesting a hallway rather than a room. Between those scattered points, rows of unlit glass remained dark and empty.</p>
+        <p>She looked at the pattern, then at Hess.</p>
+        <p>Hess was walking without turning her head. She had been growing quieter ever since the Buckner Building, but here she was entirely silent, staring at the Towers with an expression Sabrina couldn't name and wasn't going to ask about.</p>
+        ${state.sabrinaHandBurn ? `<p>The bandaging on Sabrina's right hand had settled into a steady, throbbing heat, a constant reminder with each swing of her arm. She had stopped trying to gauge whether the burn was getting worse.</p>` : ''}
+        ${state.hessInjuredWorse ? `<p>Beside her, Hess's stride correction was slightly more pronounced than it had been in the tunnel. The frozen ground was like concrete, offering no cushion for her compensated weight.</p>` : ''}
+      </div>`; },
+    choices: [
+      { text:'Walk in silence. The quiet between them felt heavy, occupied by something that didn\'t need words.', next:'c8_approach_silent', onChoose() { raiseFlag('anchor'); } },
+      { text:'Ask about the lights. They have both been looking at them since the tunnel exit.', next:'c8_approach_ask', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c8_approach_silent: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She kept walking and said nothing.</p>
+        <p>The frozen figures on this stretch were fewer. One person stood near the entrance with arms full of groceries, the bags destined to stay full forever. A man leaned against the building's corner with his eyes half-closed, caught in the posture of someone taking a moment to themselves.</p>
+        <p>They reached the entrance.</p>
+      </div>`; },
+    next:'c8_towers_door',
+  },
+
+  c8_approach_ask: {
+    render() { return `
+      <div class="dialogue">
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> The lights. What do you think of them?</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> The pattern isn't random.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> No. It isn't.</div>
+        <div class="dialogue-line"><span class="dialogue-speaker">Hess</span> I need to see the inside before I can say anything useful about it. Ask me again once we've been in there.</div>
+      </div>
+      <div class="scene-narrative"><p>They walked the rest of the stretch in silence.</p></div>`; },
+    next:'c8_towers_door',
+  },
+
+  c8_towers_door: {
+    render() { return `
+      <div class="ascii-art">${ASCII.towers_lobby}</div>
+      <div class="scene-narrative">
+        <p>The entrance to the Begich Towers was a set of heavy, institutional double doors, built to seal against Alaskan winters while remaining accessible for daily use. One door was closed. The other stood open at approximately twenty degrees, arrested mid-swing.</p>
+        <p>Through the gap, the lobby stretched into a long corridor. A row of mailboxes lined the left wall and the foot of a staircase rose toward the upper floors. Several lobby lights were on, burning just as they had been when time stopped.</p>
+        <p>Above them, through all fourteen floors of the building, the lights continued their deliberate, unhurried pattern. Each one was a choice the building seemed to be making.</p>
+        <p>Hess stood at the threshold, staring through the open door. She was entirely still.</p>
+        ${state.maraAccepted ? `<p>Mara stayed quiet behind them, watching both of them and knowing better than to ask questions.</p>` : ''}
+      </div>`; },
+    choices: [
+      { text:'Put her hand on the door frame before crossing the threshold.', next:'c8_towers_door_a' },
+      { text:'Step back to let Hess cross first.', next:'c8_towers_door_b' },
+    ],
+  },
+
+  c8_towers_door_a: {
+    render() { return `<div class="scene-narrative"><p>She put her hand against the door frame. The cold, frosted metal was worn smooth by years of daily use. They were finally at its door.</p></div>`; },
+    next:'c8_end',
+    onEnter() { state.sabrinaEnteredFirst = true; },
+  },
+
+  c8_towers_door_b: {
+    render() { return `<div class="scene-narrative"><p>She stepped back, leaving the threshold clear. Hess looked at the opening, then went through.</p></div>`; },
+    next:'c8_end',
+    onEnter() { state.sabrinaEnteredFirst = false; },
+  },
+
+  c8_end: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>${state.sabrinaEnteredFirst ? `Sabrina stepped through the open door first. Hess followed close behind${state.maraAccepted ? ', Mara coming in last' : ''}.` : `Hess stepped through the open door. Sabrina followed.${state.maraAccepted ? ' Mara also followed.' : ''}`}</p>
+        <p>The lobby was exactly as the gap had suggested. Mailboxes lined the walls of the corridor, leading to the foot of the staircase. The fluorescent bulbs cast the flat, even quality of light that empty spaces accumulate over time.</p>
+        <p>Sabrina looked up the staircase.</p>
+        <p>The lights above were quiet and deliberate, each one carefully placed. The stairs rose straight for two flights before turning, hiding whatever lay on the upper floors. Only the light passed down, spilling in stages.</p>
+        <p>Then something moved.</p>
+        <p>A small figure stood at the landing of the first flight, about the size of a child. It had gone completely still, freezing the way something does when it has been watching for a long time and has just been noticed.</p>
+        <p>She looked directly at it. She could see its size and its posture, but as she stared, the details dissolved. The failure wasn't the light, which remained the same flat, sourceless gray as the world outside. The failure was inside her own mind. The image broke down in the space between seeing and keeping, where her eyes handed the data off and her memory refused to accept it. It was a figure-shaped gap where a face should have been.</p>
+        <p>The figure turned and fled. Quick, light footsteps scurried up the stairs, vanishing around the landing turn before any of them could speak.</p>
+        <p>Then the staircase was empty again.</p>
+        ${state.maraAccepted ? `
+      </div>
+      <div class="scene-narrative"><p>Mara's voice came from behind her, quiet and matter-of-fact.</p></div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Mara</span> There's someone up there.</div></div>
+      <div class="scene-narrative">` : ''}
+        <p>Sabrina kept her eyes on the empty landing, where her memory was still trying to close around a shape it could not grasp.</p>
+        ${state.hessCRMBroken ? `<p>Hess brought her wrist up without pretext. The screen was dark, the same as every other time. She looked back at the staircase, measuring the empty space as if waiting for the data to make sense.</p>` : ''}
+        <p>None of them spoke.</p>
+        <p>The lights above kept their positions, an arrangement too deliberate to be the last thing anyone left running.</p>
+      </div>
+      <div class="scene-divider">◈</div>
+      <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;"><p>End of Chapter VIII</p></div>`; },
+    isEndCh8: true,
+  },
+
+  // CHAPTER 9 ──────────────────────────────────────────────────
+
+  c9_opening: {
+    chapter:'Chapter IX', chapterTitle:'The Grand Victorian Hotel',
+    headerChapter:', Ch. IX', location:'The Begich Towers',
+    render() { return `
+      <div class="ascii-art">${ASCII.stairwell_chase}</div>
+      <div class="scene-narrative">
+        <p>The echoes of the footsteps had already vanished into the vertical concrete vault.</p>
+        <p>Sabrina searched her memory for details that refused to take shape. While the silhouette remained clear in her mind, the face was a featureless blur that left her without a visual anchor. It was a phantom gap that frustrated her deeply. Above her, the staircase wound upward into heavy shadows, illuminated only by a deliberate and cryptic pattern of light.</p>
+        <p>She slammed her boot onto the first step.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Follow me up.</div></div>
+      <div class="scene-narrative">${state.maraAccepted ? `<p>Behind her, Hess and Mara matched her pace without exchanging a word.</p>` : `<p>She heard the heavy thud of Hess falling in behind her.</p>`}</div>
+      <div class="scene-narrative"><p>She didn't look back to check.</p></div>`; },
+    choices: [
+      { text:'Call up the stairwell as she runs. The figure knows this building; she needs it to know she is not going to stop.', next:'c9_opening_call', onChoose() { raiseFlag('instinct'); } },
+      { text:'Save her breath. Shouting will only confirm she is coming. She needs speed instead of noise.', next:'c9_opening_run', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c9_opening_call: {
+    render() { return `
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Hey!</div></div>
+      <div class="scene-narrative">
+        <p>Her voice tore up the stairwell, instantly shattering against the bare concrete before the walls threw it back in a chaotic cascade of overlapping echoes. Multiplying her voice into fractured versions of herself arriving from different directions, the resulting sound resembled a tremor rather than a command. It was thinner and far less certain than she intended.</p>
+        <p>Above, the rhythm of the fleeing footsteps remained steady, though she heard a brief hesitation at the second platform. The fleeing body had registered the unexpected sound.</p>
+        <p>She threw herself into the second set of stairs, knowing the figure now understood she was close behind and refusing to stop.</p>
+      </div>`; },
+    next:'c9_stairwell_morph',
+  },
+
+  c9_opening_run: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She clamped her jaw shut and ran.</p>
+        <p>Without her voice cluttering the air, the acoustics became clear. The heavy cadence of her boots bounced off the walls to counter the rapid-fire staccato of the figure two levels above, allowing her to map the distance through sound alone.</p>
+        <p>The gap was shrinking. She sprinted up the second staircase, taking the steps two at a time, her lungs burning against the chill.</p>
+      </div>`; },
+    next:'c9_stairwell_morph',
+  },
+
+  c9_stairwell_morph: {
+    render() { return `
+      <div class="ascii-art">${ASCII.morph_stairwell}</div>
+      <div class="scene-narrative">
+        <p>She was halfway up the third set of stairs when the air pressure plummeted.</p>
+        <p>The change arrived as a sudden subtraction of sound. Every ambient frequency in the Begich Towers severed in the exact same microsecond, silencing the hollow echo of her boots and the faint draft whistling through the stairwell. The pressure drop slammed against her eardrums like a diving bell.</p>
+        <p>Then the concrete tore open.</p>
+        <p>The event occurred without a violent collapse, seismic shudder, shattering glass or spray of debris to signal structural failure. Instead, the institutional gray wall to her right groaned. It flexed like a muscle held rigid for a century before peeling backward to expose a layer of dry, perfectly settled plaster underneath. The concrete appeared to have been a temporary skin waiting to be shed.</p>
+        <p>She forced her legs to keep moving, refusing to break stride.</p>
+        <p>The industrial linoleum stiffened beneath her soles as its seams blurred and dissolved. Rich hardwood planks punched through the synthetic flooring in a rapid-fire sequence of dry wooden clicks, the ancient joints snapping into place while the architecture discarded its modern exterior. Under her left hand, the cold steel handrail flared hot before freezing again over the span of two steps. Thickening in her grip, it twisted until the rough texture of wood grain materialised beneath her fingers in low relief to reveal intricately carved leaves alongside a heavy curve pressing into her palm.</p>
+        <p>The fluorescent tube at the next floor flickered and died.</p>
+        <p>Keeping her focus locked on the mutating stairs, her gaze snapped upward as the light shifted. A heavy brass wall sconce now jutted from the plaster where the commercial fixture had been. It was already burning, casting a warm amber glow across the platform as though it had been lit for a hundred years. The next fluorescent tube blew out and another brass sconce flared to life. By the time she cleared the stairs, the cold white glare of the Towers was gone. The stairwell stretched upward in a sequence of measured golden pools of amber light.</p>
+        <p>The ceiling began to rise higher.</p>
+        <p>The change happened smoothly as she took her next step, mirroring the fluid, terrifying way a room alters its dimensions in a dream. Looking up, she expected the previous ceiling height but found only empty air, leaving her internal compass disoriented by the greater space. Ornate wood panelling snapped into place along the walls with a deep structural thud she felt through the marrow of her bones. The narrow pitch of the stairwell widened, expanding with the grand dimensions of a luxury hotel.</p>
+        <p>On a level above, a heavy door swung inward from the sheer convulsion of the shift. She slowed her pace for a brief moment to look through the opening. She saw a sweeping, dark-timbered study where a cramped residential apartment had existed just seconds ago. A massive writing table sat squarely beneath a tall window, holding an open journal. The brief glimpse of the tight, elegant script on the pages triggered an immediate memory. It matched the handwriting from a Jeep's glovebox in a dead wasteland and from a rusted filing cabinet in the depths of the Buckner Building.</p>
+        <p>The door slammed shut before she could think to halt. She didn't stop.</p>
+      </div>
+      <div class="memory-flash">
+        <div class="memory-flash-label">◈ Memory</div>
+        <div class="memory-flash-text">The jungle floor had been frozen ground. The fern had been bending in tropical heat while the snow pushed up through its roots. She had watched two conflicting geographies violently occupy the exact same space at once and she had grabbed Hess's arm because reality was slipping away. There was no arm to grab now.</div>
+      </div>
+      <div class="scene-narrative">
+        <p>The staircase began to curve. It had never curved before. Sabrina remembered the Towers' floor plan from the lobby directory, which showed straight-run stairwells with four-staircase intervals across fourteen storeys. The grand arc before her defied that layout entirely. Despite the impossibility, the architecture appeared structurally and flawlessly correct. The sweep of the banister, the elegant rise of the steps and the towering ceiling height above possessed the undeniable precision of an architect's final intent.</p>
+        ${state.maraAccepted ? `<p>Below her, the footsteps of Hess and Mara had drifted further back than they should have, the distance between them significantly greater than it had been at the start.</p>` : `<p>Below her, Hess's heavy boots had dropped further back than expected, the gap greater than it had been two levels ago.</p>`}
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Try to keep up!</div></div>
+      <div class="scene-narrative">
+        <p>${state.maraAccepted ? 'She called it down, not slowing to let them recover their pace.' : 'She yelled it back, not slowing down.'}</p>
+        <p>Having already passed fourteen distinct platforms, she stopped counting. The Towers were supposed to end there, but this new environment stretched upward with no end in sight.</p>
+        <p>At the next platform, the figure vanished from her line of sight. Three distinct corridors branched out from the wood floors. One cut straight ahead between towering panelled doors. Another veered right toward a tall window where the pale arctic light bled through the glass. The third swept left into the continuous spiral of the ascending staircase.</p>
+      </div>`; },
+    choices: [
+      { text:'Cross-reference the floor plan before committing. The stairwell exited east at each level. That hasn\'t changed, even if everything else has.', next:'c9_morph_memory', onChoose() { raiseFlag('observer'); } },
+      { text:'Go completely still and listen. The shifting environment has provided one piece of reliable information for every piece it removed.', next:'c9_morph_listen', onChoose() { raiseFlag('anchor'); } },
+      { text:'Follow the curve left. The layout has directed her upward since the lobby.', next:'c9_morph_follow', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c9_morph_memory: {
+    location:'Upper Floors',
+    render() { return `
+      <div class="scene-narrative">
+        <p>She forced herself to halt and take a single deep breath.</p>
+        <p>Comparing her memory of the floor plan against the freshly materialised panelling, she noted the straight corridor ahead ran dead east. This matched the original layout where the staircases breached each floor. The architecture had rewritten itself while the cardinal directions remained unbroken. East was still east.</p>
+        <p>She broke into a sprint down the straight corridor.</p>
+      </div>`; },
+    next:'c9_stairwell_squeeze',
+  },
+
+  c9_morph_listen: {
+    location:'Upper Floors',
+    render() { return `
+      <div class="scene-narrative">
+        <p>She froze and held her breath.</p>
+        <p>Around her, the transformed environment settled with a series of minor physical adjustments. The curing plaster made a final dry contraction alongside a low click from the expanding hardwood.</p>
+        ${state.maraAccepted ? `<p>Below her, two sets of boots laboured up the stairs at different depths, moving far slower than she wanted them to.</p>` : `<p>Below her, Hess's heavy boots laboured up the stairs, moving far slower than she wanted.</p>`}
+        <p>Above her, there was only silence initially. She waited, straining her ears.</p>
+        <p>Eventually, the quick, light patter of soles reached her ears. The sound did not come from the hallway ahead or the immediate platform, but directly above her as the person continued to ascend. Designed to rejoin the main staircase almost instantly, the left passage proved the figure had not hesitated at this junction. She pivoted left and threw herself back onto the stairs.</p>
+      </div>`; },
+    next:'c9_stairwell_squeeze',
+  },
+
+  c9_morph_follow: {
+    location:'Upper Floors',
+    render() { return `
+      <div class="scene-narrative">
+        <p>Taking the left turn on pure momentum, she refused to waste time on spatial calculations.</p>
+        <p>The Victorian staircase swept upward and to the left in a grand circular trajectory. The curving banister naturally guided her into the turn while the wide pitch of the steps allowed for maximum speed. Since her upward trajectory had remained constant from the moment she crossed the threshold, she maintained the climb. Hearing the light footsteps above her begin to pull away prompted her to sprint faster.</p>
+      </div>`; },
+    next:'c9_stairwell_squeeze',
+  },
+
+  c9_stairwell_squeeze: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She had the silhouette back in her sights. Two levels up, the figure maintained the exact same distance with a rhythmic consistency.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Are you kidding me?</div></div>
+      <div class="scene-narrative"><p>She muttered it, frustrated by how effortlessly the target kept slipping away.</p></div>
+      <div class="scene-narrative">
+        <p>The movement resembled a deliberate pace rather than a frantic escape. By now, the environment had fully stabilised into an entirely Victorian aesthetic, leaving no concrete behind to suggest the Towers had ever existed.</p>
+        <p>Yet a single architectural anomaly remained unresolved at the very next floor. A jagged wedge of the original Towers' concrete wall jutted aggressively into the hallway at an awkward angle, choking the passage down to a claustrophobic slit. The small figure ahead glided through the narrow gap without hesitation. Offering only a child's width of clearance, the opening posed no obstacle to the figure, who passed through without slowing down or shifting weight.</p>
+        <p>Sabrina stopped at the edge of the obstruction to evaluate the gap. While physically passable, her heavy backpack would snag if she didn't angle her body through it. It was a manoeuvre that would cost her valuable ground.</p>
+      </div>`; },
+    choices: [
+      { text:'Turn sideways and go. Angle the backpack, accept the close quarters, keep the figure in range.', next:'c9_squeeze_through', onChoose() { raiseFlag('instinct'); } },
+      { text:'Scan the area for a way around the jutting section.', next:'c9_squeeze_around', onChoose() { raiseFlag('observer'); } },
+    ],
+  },
+
+  c9_squeeze_through: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>Twisting her torso sideways, she pinned the frame of her backpack flush against her shoulder blades before shoving herself into the tight space.</p>
+        <p>The rough edge of the concrete immediately snagged the fabric of her winter jacket. Swearing under her breath, she hitched her shoulder, dropped her opposite hip and scraped through in four awkward strides.</p>
+        <p>Above her, the light footsteps were already climbing. She found the first step of the next staircase and resumed the pursuit.</p>
+      </div>`; },
+    next:'c9_stairwell_high',
+  },
+
+  c9_squeeze_around: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The protruding slab of concrete terminated abruptly at the ceiling, leaving a jagged seam along the floorboards. Right beside it within the newly formed wall sat a heavy wood-panelled maintenance door. She slammed her weight against it and burst through.</p>
+        <p>The interior route had completed its conversion flawlessly, featuring deep Victorian trim that left the seam between modern materials and old wood barely visible at the joints. Moving through the space, she noticed an intricate carving etched into the dark wood of the door frame: a clean flowing line bisecting a perfect circle, accompanied by three sharp marks extending from the bottom like roots or river deltas. She kept her eyes on the glyph for two full strides before it vanished into the shadows behind her.</p>
+        <p>Bursting back onto the main platform, she found the stairs and resumed the pursuit.</p>
+      </div>`; },
+    next:'c9_stairwell_high',
+  },
+
+  c9_stairwell_high: {
+    location:'Upper Floors',
+    render() { return `
+      <div class="scene-narrative">
+        <p>The architecture had finally finished shifting. Every surface locked into its final state. The Begich Towers were entirely gone, completely overwritten as Sabrina pushed through the space, fighting the heavy burn building in her thighs.</p>
+        <p>The figure remained ahead, maintaining the same consistent distance. Realising she was being intentionally led, Sabrina watched as the silhouette darted off the stairs at the next platform and slipped through a pair of massive double doors in the right-hand wall. By the time Sabrina reached them, the heavy wood was already swinging shut.</p>
+        <p>Breaching the doors, she found a short, elegant corridor that split almost immediately. To the left, a narrower door stood slightly ajar to let a pale beam of grey arctic light slice through the crack. To the right stretched a vast gallery hall lined with floor-to-ceiling windows overlooking the frozen Alaskan expanse. The hallway was entirely empty in both directions.</p>
+      </div>`; },
+    choices: [
+      { text:'Take the gallery right. A small figure that knows this building would avoid the narrower passage, where an adult at full pace could close the distance.', next:'c9_high_gallery', onChoose() { raiseFlag('observer'); } },
+      { text:'Take the left turn. The doors were still swinging when she came through. Motion follows motion.', next:'c9_high_left', onChoose() { raiseFlag('instinct'); } },
+    ],
+  },
+
+  c9_high_gallery: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The massive gallery windows offered an uninterrupted panorama of the canal, the frozen bay and the distant mountains.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> I don't believe this. How high up are we?</div></div>
+      <div class="scene-narrative"><p>She took a breath, her eyes tracing the impossible height.</p></div>
+      <div class="scene-narrative">
+        <p>The view revealed a staggering sense of altitude, confirming the landscape outside sat significantly higher than fourteen storeys up.</p>
+        <p>At the far end of the gallery, a heavy timber door sat flush within its frame. Brilliant, warm light spilled out from the gap beneath it. The deep radiance felt far too vast to originate from a single light fixture. Crossing the floor, she reached out and pressed her palm against the wood.</p>
+      </div>`; },
+    next:'c9_dining_hall',
+  },
+
+  c9_high_left: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She pushed through the narrow door. The left-hand corridor curved sharply before opening into a vaulted antechamber where two new doors dominated the far wall. One was a standard-sized entry, while the other was a massive set of double doors taller than any structure she had encountered so far.</p>
+        <p>Resting a fraction of an inch ajar, the grand double doors bled a warm, stable illumination from the seam. It resembled the glow of a hearth rather than simple light fixtures, suggesting an actively occupied space. She crossed the antechamber and placed her hand against the right-hand panel.</p>
+      </div>`; },
+    next:'c9_dining_hall',
+  },
+
+  c9_dining_hall: {
+    location:'The Dining Hall',
+    render() { return `
+      <div class="ascii-art">${ASCII.grand_dining_hall}</div>
+      <div class="scene-narrative">
+        <p>Stepping through the grand doors, she found herself in a dining hall of massive scale. The ceiling vaulted to a breathtaking height, establishing a space engineered to make a meal feel as monumental as the architecture surrounding it. Descending through the centre of the hall, two massive pairs of crystal chandeliers swayed slightly in a gentle circulation of air that felt completely out of place in a frozen city. Their warm, perfectly steady light illuminated long tables of dark polished wood laid out below with extreme geometric precision.</p>
+        <p>The room felt entirely alive.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> What is this place?</div></div>
+      <div class="scene-narrative"><p>She whispered it to the empty air, taking in the sheer impossibility of it all.</p></div>
+      <div class="scene-narrative">
+        <p>The atmosphere differed completely from the brittle suspended animation of the frozen town outside. A faint current moved the chandelier crystals and brushed softly against Sabrina's face as she stepped across the threshold. The space held a distinct energy, suggesting continuous, uninterrupted occupation over a very long time.</p>
+        <p>Spanning the entirety of the far wall, a massive oil painting dominated the room's visual focus. Its thick layers of paint formed an unmistakable original landscape produced with immense patience, depicting flat muted light above dark obsidian water with mountains rising in the distance. A man stood directly in front of it with his back turned to the hall, raising one of his hands toward the canvas to hold his fingers a millimetre from the paint without making contact.</p>
+        <p>Another strange detail caught her attention. A large mare walked a slow perimeter around the far end of the hall, her hooves striking the dark hardwood with a hollow, echoing rhythm that bounced across the vast space. Her mane was a shade of deep cobalt blue that Sabrina had never seen before in nature. Much like everything else in the room, the animal defied logical explanation.</p>
+      </div>`; },
+    choices: [
+      { text:'Audit the room. She needs to force her mind onto something concrete to handle the impossible details.', next:'c9_hall_audit', onChoose() { raiseFlag('observer'); } },
+      { text:'Stop calculating entirely. Something about the air in here is telling her the danger is not physical.', next:'c9_hall_breathe', onChoose() { raiseFlag('instinct'); } },
+      { text:'Fix on the man at the painting. Everything else can wait.', next:'c9_hall_fixate', onChoose() { raiseFlag('anchor'); } },
+    ],
+  },
+
+  c9_hall_audit: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>Forcing her mind away from the impossible details of the room, she locked onto the cold physics of the space.</p>
+        <p>Based on the normal laws of physics, the amber light spilling from the chandeliers should have decayed as it reached the far corners of the massive hall. Instead, the illumination maintained an identical intensity across every part of the space, as if the chandeliers generated the baseline condition of light rather than casting it. Shifting her eyes to the painting, she noticed the heavy brushstrokes caught the golden glare with a glossy wet sheen that should have dried long ago. The floor beneath her boots defied logic just as much. Wood positioned this close to exterior walls in an Alaskan winter should pull frost upward through the planks, yet the surface felt perfectly warm.</p>
+        <p>She observed these physical impossibilities closely to maintain her composure.</p>
+      </div>`; },
+    next:'c9_dining_hall_converge',
+  },
+
+  c9_hall_breathe: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>She stopped analysing the environment.</p>
+        <p>Drawing a slow deep breath, she fully expanded her lungs for the first time since entering the lobby. The incredibly warm air carried the rich scent of cedar, causing her muscles to unwind instantly. Her right hand, which had automatically migrated to the handle of the hammer at her hip, slowly relaxed as her fingers uncoiled and fell away.</p>
+        <p>Carrying no tension of an ambush, the atmospheric pressure in the grand hall left Sabrina standing in a room that felt completely secure.</p>
+      </div>`; },
+    next:'c9_dining_hall_converge',
+  },
+
+  c9_hall_fixate: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>Ignoring the horse, the chandeliers and the staggering dimensions of the hall, she focused entirely on the silhouette standing before the canvas.</p>
+        <p>The familiar slope of his shoulders and the slight tilt of his head gave him away. He kept his hand suspended a precise distance from the oil paint, close enough to suggest a desire for contact while held back by profound internal restraint. Her memory immediately connected the silhouette against her past, matching his posture, his frame and the exact way he stood when entirely consumed by something he loved.</p>
+        <p>The realisation hit her chest heavily before she could even speak his name aloud.</p>
+      </div>`; },
+    next:'c9_dining_hall_converge',
+  },
+
+  c9_dining_hall_converge: {
+    render() { return `
+      <div class="scene-narrative">
+        <p>The small agile figure she had spent the last twenty minutes chasing up the shifting interior of the building suddenly dashed out from a side corridor near the far wall. Sprinting across the polished hardwood without hesitation, the child had transformed a frantic escape into a direct arrival, instantly seizing the hand of the man at the painting.</p>
+        <p>Remaining calm, the man allowed his hand to be taken with the easy warmth of a familiar routine.</p>
+        <p>Then, he turned around.</p>
+        <p>He looked a year older than she remembered. Or perhaps his features simply showed the quiet weathering of someone who had spent a very long time waiting. He looked patient, entirely self-contained and completely himself.</p>
+        <p>Looking down at the child clinging to his hand, he then drifted his gaze toward the grand entrance of the hall. His eyes locked onto Sabrina standing in the doorway. She stood there breathing heavily, a backpack strapped to her shoulders and the hammer at her hip.</p>
+        <p>Sabrina stared at his face while the world around her stopped moving.</p>
+      </div>
+      <div class="dialogue"><div class="dialogue-line"><span class="dialogue-speaker">Sabrina</span> Lucas!</div></div>
+      <div class="scene-divider">◈</div>
+      <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;"><p>End of Chapter IX</p></div>`; },
+    isEndCh9: true,
+  },
+
 };
 
 // ── ENGINE ────────────────────────────────────────────────────
@@ -3369,7 +5415,7 @@ function renderNode(nodeId, undoMode, chapterStart) {
     ? `<button class="undo-btn" id="undo-btn" onclick="undoChoice()"><span>↩</span> Undo last choice</button>`
     : '';
 
-  const END_NODE = node.isEndCh3 || node.isEndCh4 || node.isEndCh5 || node.isEndCh6 || node.isEnd;
+  const END_NODE = node.isEndCh3 || node.isEndCh4 || node.isEndCh5 || node.isEndCh6 || node.isEndCh7 || node.isEndCh8 || node.isEndCh9 || node.isEnd;
   const isNextOnly = !END_NODE && !!node.next && !(choices && choices.length > 0);
   const skipBtn = (sceneHistory.length > 0 && isNextOnly)
     ? `<button class="skip-btn" id="skip-btn" onclick="skipToNextChoice()"><span>⇥</span> Skip to next choice</button>`
@@ -3400,6 +5446,27 @@ function renderNode(nodeId, undoMode, chapterStart) {
   } else if (node.isEndCh6) {
     choicesHTML = `<div class="choices-block" id="choices-block">
       <button class="choice-btn" onclick="showPostCh6()">
+        <span class="choice-number">→</span><span class="choice-text">Continue</span>
+      </button>
+      ${undoBtn}${skipBtn}
+    </div>`;
+  } else if (node.isEndCh7) {
+    choicesHTML = `<div class="choices-block" id="choices-block">
+      <button class="choice-btn" onclick="beginChapter8()">
+        <span class="choice-number">→</span><span class="choice-text">Continue</span>
+      </button>
+      ${undoBtn}${skipBtn}
+    </div>`;
+  } else if (node.isEndCh8) {
+    choicesHTML = `<div class="choices-block" id="choices-block">
+      <button class="choice-btn" onclick="beginChapter9()">
+        <span class="choice-number">→</span><span class="choice-text">Continue</span>
+      </button>
+      ${undoBtn}${skipBtn}
+    </div>`;
+  } else if (node.isEndCh9) {
+    choicesHTML = `<div class="choices-block" id="choices-block">
+      <button class="choice-btn" onclick="showCh9PostGame()">
         <span class="choice-number">→</span><span class="choice-text">Continue</span>
       </button>
       ${undoBtn}${skipBtn}
@@ -3698,8 +5765,8 @@ function showCh6EndCard() {
       <div class="end-card-sub">${injuredText} The Centre's file on the Leventhians is still one page long.</div>
       <div class="end-card-divider"></div>
       <div class="end-card-actions">
-        <button class="choice-btn" style="width:100%; align-items:center; justify-content:center; text-align:center;" onclick="restartGame()">
-          <span class="choice-number" style="margin-right:0.5rem; line-height:1;">↩</span><span class="choice-text" style="flex:none;">Begin again from the start</span>
+        <button class="choice-btn" style="width:100%; align-items:center; justify-content:center; text-align:center;" onclick="startChapter7()">
+          <span class="choice-number" style="margin-right:0.5rem; line-height:1;">→</span><span class="choice-text" style="flex:none;">Start Chapter VII</span>
         </button>
         <div class="end-card-donate-placeholder">◈ &nbsp; support this project &nbsp; ◈</div>
       </div>
@@ -3712,7 +5779,7 @@ function showCh6EndCard() {
 function skipToNextChoice() {
   // Walk forward through next-only nodes, stopping at a node with choices
   // or any chapter-end node. Preserves all flags and inventory.
-  const END_FLAGS = ['isEndCh3','isEndCh4','isEndCh5','isEndCh6','isEnd'];
+  const END_FLAGS = ['isEndCh3','isEndCh4','isEndCh5','isEndCh6','isEndCh7','isEndCh8','isEndCh9','isEnd'];
   const MAX_STEPS = 40; // safety limit
 
   let steps = 0;
@@ -3753,15 +5820,24 @@ function restartGame() {
   state.hadNotes = true; state.sawBlueLight = false; state.heardDeepSound = false;
   state.hessDynamic = 'intern'; state.carvedSymbol = false; state.gatekeeperApproach = null;
   state.hessInjured = false;
+  state.hessInjuredWorse = false; state.hessCRMBroken = false; state.hessPaced = false;
+  state.maraAccepted = false; state.logbookLost = false;
+  state.lexCRMDoc = false; state.lexImplantDoc = false; state.sabrinaHandBurn = false;
+  state.sabrinaEnteredFirst = false;
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('game-screen').style.display = 'none';
   document.getElementById('post-game').style.display = 'none';
   document.getElementById('leventhian-interstitial').style.display = 'none';
   document.getElementById('post-ch6').style.display = 'none';
+  const pch7 = document.getElementById('pre-ch7');
+  if (pch7) pch7.style.display = 'none';
+  const pch9 = document.getElementById('post-ch9');
+  if (pch9) pch9.style.display = 'none';
   // Close settings panel if open
   const panel = document.getElementById('settings-panel');
   if (panel) { panel.classList.remove('open', 'visible'); settingsPanelOpen = false; }
+  _twCancel();
   const ghdr = document.getElementById('game-header');
   if (ghdr) ghdr.style.display = 'none';
   const ts = document.getElementById('title-screen');
@@ -3846,6 +5922,58 @@ function restartGame() {
 
 <!-- CH6 END CARD -->
 <div id="ch6-end-card" style="display:none;">
+</div>
+
+<!-- PRE-CHAPTER 7 INTERSTITIAL (Inheritance) -->
+<div id="pre-ch7" style="display:none; position:fixed; inset:0; overflow-y:auto; overflow-anchor:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:4rem 2rem; background:var(--bg)">
+  <div class="interstitial-inner">
+    <div class="interstitial-label">◈ &nbsp; from an old journal &nbsp; ◈</div>
+    <div class="interstitial-text">
+      <strong>I.</strong>
+      Last night we searched an overture for the new world,<br>
+      as we were ripping through the lives of young artists to come.<br><br>
+      And there we found the maker, the one that wishes well,<br>
+      and the shaper, the one that builds the wells for putting wishes.
+      <strong>II.</strong>
+      We let him live, for it was not the world that needed real art,<br>
+      but us, the gods, forever bored of nothingness.<br><br>
+      We made him the new god, to make believe what he saw fit,<br>
+      as our time was running out.<br><br>
+      And then we left. And as we parted,<br>
+      we heard him speak the words of new:<br><br>
+      <em>Let there be light.</em><br><br>
+      And so it was, as we became the dark.
+    </div>
+    <button class="interstitial-continue" onclick="beginChapter7()">Enter</button>
+  </div>
+</div>
+
+<!-- POST-CHAPTER 9 INTERSTITIAL (Second Life Syndrome) -->
+<div id="post-ch9" style="display:none; position:fixed; inset:0; overflow-y:auto; overflow-anchor:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:4rem 2rem; background:var(--bg)">
+  <div class="interstitial-inner">
+    <div class="interstitial-label" id="pch9-label">◈ &nbsp; from an old journal &nbsp; ◈</div>
+    <div class="interstitial-text" id="pch9-text" style="font-style:italic; white-space:pre-line;">Sometimes
+I gather all my useless thoughts
+and play them
+like staccato notes, to jump-start
+my imagination.
+
+They dance around like fireflies,
+not knowing the meaning of life;
+nor death, for that occasion.
+
+Then slowly I begin to freeze
+— the ice age of a hell-bent soul.
+Only the books are left to keep me warm
+by sustaining the fire;
+somehow, it always proves in vain.
+
+But nothing ever happens
+and I am left to dream about reality
+as it passes me by —
+like water down the drain.</div>
+    <button class="interstitial-continue" id="pch9-btn" onclick="showCh9EndCard()">Continue</button>
+  </div>
 </div>
 
 <!-- SETTINGS PANEL -->
@@ -4173,6 +6301,119 @@ startGame = function() {
 };
 
 document.addEventListener('DOMContentLoaded', loadPreferences);
+
+// ── PRE-CH7 INTERSTITIAL ──────────────────────────────────────
+function startChapter7() {
+  document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
+  const el = document.getElementById('pre-ch7');
+  el.querySelectorAll('.interstitial-label, .interstitial-text, .interstitial-continue').forEach(child => {
+    child.style.animation = 'none';
+    child.style.opacity = '0';
+    void child.offsetWidth;
+  });
+  el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease 0.3s forwards';
+  el.querySelector('.interstitial-text').style.animation = 'fadeIn 1.5s ease 0.8s forwards';
+  el.querySelector('.interstitial-continue').style.animation = 'fadeIn 1s ease 2.5s forwards';
+  el.scrollTop = 0;
+  el.style.display = 'flex';
+}
+
+function beginChapter7() {
+  document.getElementById('pre-ch7').style.display = 'none';
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
+  sceneHistory = [];
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('scene-history').innerHTML = '';
+  document.getElementById('inventory-display').innerHTML = '';
+  renderNode('c7_opening', false, true);
+}
+
+// ── CH8 ENTRY ─────────────────────────────────────────────────
+function beginChapter8() {
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  sceneHistory = [];
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('scene-history').innerHTML = '';
+  renderNode('c8_opening', false, true);
+}
+
+// ── CH9 ENTRY ─────────────────────────────────────────────────
+function beginChapter9() {
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  sceneHistory = [];
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('scene-history').innerHTML = '';
+  renderNode('c9_opening', false, true);
+}
+
+// ── POST-CH9 INTERSTITIAL ─────────────────────────────────────
+function showCh9PostGame() {
+  stopAllMusic();
+  document.getElementById('game-screen').style.display = 'none';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'none';
+  const el = document.getElementById('post-ch9');
+  const animEls = [
+    { id:'pch9-label', anim:'fadeIn 1s ease 0.3s forwards' },
+    { id:'pch9-text',  anim:'fadeIn 1.5s ease 0.8s forwards' },
+    { id:'pch9-btn',   anim:'fadeIn 1s ease 2.5s forwards' },
+  ];
+  animEls.forEach(({ id, anim }) => {
+    const el2 = document.getElementById(id);
+    if (!el2) return;
+    el2.style.animation = 'none';
+    el2.style.opacity = '0';
+    void el2.offsetWidth;
+    el2.style.animation = anim;
+  });
+  el.scrollTop = 0;
+  el.style.display = 'flex';
+}
+
+function showCh9EndCard() {
+  document.getElementById('post-ch9').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'flex';
+  document.getElementById('game-screen').style.flexDirection = 'column';
+  const ghdr = document.getElementById('game-header');
+  if (ghdr) ghdr.style.display = 'block';
+  document.getElementById('scene-history').innerHTML = '';
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('inventory-display').innerHTML = '';
+  document.getElementById('current-scene').innerHTML = `
+    <div class="end-card">
+      <div class="end-card-ornament">◈ &nbsp; The Last Leventhian &nbsp; ◈</div>
+      <div class="ascii-art" style="font-size:clamp(0.5rem,1.1vw,0.68rem); opacity:0.7; border:none; background:none; padding:0.5rem 0;">
+      |          |          |          |
+      | ~~~~~~~  | ~~~~~~~  | ~~~~~~~  |
+      |  ( * )   |  ( * )   |  ( * )   |
+      |  amber   |  amber   |  amber   |
+      |__________|__________|__________|
+                       |
+                  ·  d o o r  ·
+                       |
+              warm light, held steady</div>
+      <div class="end-card-title">The story continues.</div>
+      <div class="end-card-sub">He was there. He had been there the whole time. And the child had known exactly where to find him.</div>
+      <div class="end-card-divider"></div>
+      <div class="end-card-actions">
+        <button class="choice-btn" style="width:100%; align-items:center; justify-content:center; text-align:center;" onclick="restartGame()">
+          <span class="choice-number" style="margin-right:0.5rem; line-height:1;">↩</span><span class="choice-text" style="flex:none;">Begin again from the start</span>
+        </button>
+        <div class="end-card-donate-placeholder">◈ &nbsp; support this project &nbsp; ◈</div>
+      </div>
+    </div>`;
+  document.getElementById('game-screen').scrollTop = 0;
+}
 </script>
 
 </body>
