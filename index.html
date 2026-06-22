@@ -1787,7 +1787,7 @@ const nodes = {
       <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;">
         <p>End of Chapter I</p>
       </div>`; },
-    next:'c2_opening',
+    isEndCh1: true,
   },
 
   c1_enter_without: {
@@ -1802,7 +1802,7 @@ const nodes = {
       <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;">
         <p>End of Chapter I</p>
       </div>`; },
-    next:'c2_opening',
+    isEndCh1: true,
   },
 
   // CHAPTER 2 ──────────────────────────────────────────────────
@@ -2049,7 +2049,7 @@ const nodes = {
       <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;">
         <p>End of Chapter II</p>
       </div>`; },
-    next:'c3_opening',
+    isEndCh2: true,
   },
 
   c2_look_at_water: {
@@ -2075,7 +2075,7 @@ const nodes = {
       <div class="scene-narrative" style="text-align:center; color:var(--ink-dim); font-style:italic; font-size:1rem; line-height:2.2;">
         <p>End of Chapter II</p>
       </div>`; },
-    next:'c3_opening',
+    isEndCh2: true,
   },
 
   // CHAPTER 3 ──────────────────────────────────────────────────
@@ -5415,14 +5415,28 @@ function renderNode(nodeId, undoMode, chapterStart) {
     ? `<button class="undo-btn" id="undo-btn" onclick="undoChoice()"><span>↩</span> Undo last choice</button>`
     : '';
 
-  const END_NODE = node.isEndCh3 || node.isEndCh4 || node.isEndCh5 || node.isEndCh6 || node.isEndCh7 || node.isEndCh8 || node.isEndCh9 || node.isEnd;
+  const END_NODE = node.isEndCh1 || node.isEndCh2 || node.isEndCh3 || node.isEndCh4 || node.isEndCh5 || node.isEndCh6 || node.isEndCh7 || node.isEndCh8 || node.isEndCh9 || node.isEnd;
   const isNextOnly = !END_NODE && !!node.next && !(choices && choices.length > 0);
   const skipBtn = (sceneHistory.length > 0 && isNextOnly)
     ? `<button class="skip-btn" id="skip-btn" onclick="skipToNextChoice()"><span>⇥</span> Skip to next choice</button>`
     : '';
 
   let choicesHTML = '';
-  if (node.isEndCh3) {
+  if (node.isEndCh1) {
+    choicesHTML = `<div class="choices-block" id="choices-block">
+      <button class="choice-btn" onclick="beginChapter2()">
+        <span class="choice-number">→</span><span class="choice-text">Continue</span>
+      </button>
+      ${undoBtn}${skipBtn}
+    </div>`;
+  } else if (node.isEndCh2) {
+    choicesHTML = `<div class="choices-block" id="choices-block">
+      <button class="choice-btn" onclick="beginChapter3()">
+        <span class="choice-number">→</span><span class="choice-text">Continue</span>
+      </button>
+      ${undoBtn}${skipBtn}
+    </div>`;
+  } else if (node.isEndCh3) {
     choicesHTML = `<div class="choices-block" id="choices-block">
       <button class="choice-btn" onclick="showPostGame()">
         <span class="choice-number">→</span><span class="choice-text">Continue</span>
@@ -5647,9 +5661,36 @@ function startChapter4() {
   el.style.display = 'flex';
 }
 
+// ── CH2 ENTRY ─────────────────────────────────────────────────
+function beginChapter2() {
+  const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  sceneHistory = [];
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('scene-history').innerHTML = '';
+  document.getElementById('inventory-display').innerHTML = '';
+  renderNode('c2_opening', false, true);
+}
+
+// ── CH3 ENTRY ─────────────────────────────────────────────────
+function beginChapter3() {
+  const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+  sceneHistory = [];
+  sceneHistoryRenderedCount = 0;
+  document.getElementById('scene-history').innerHTML = '';
+  document.getElementById('inventory-display').innerHTML = '';
+  renderNode('c3_opening', false, true);
+}
+
 function beginChapter4() {
   document.getElementById('pre-ch4').style.display = 'none';
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
@@ -5664,6 +5705,7 @@ function beginChapter4() {
 // ── CH5 ENTRY ─────────────────────────────────────────────────
 function beginChapter5() {
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   sceneHistory = [];
@@ -5698,6 +5740,7 @@ function showLeventhianInterstitial() {
 function beginChapter6() {
   document.getElementById('leventhian-interstitial').style.display = 'none';
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
@@ -5779,7 +5822,7 @@ function showCh6EndCard() {
 function skipToNextChoice() {
   // Walk forward through next-only nodes, stopping at a node with choices
   // or any chapter-end node. Preserves all flags and inventory.
-  const END_FLAGS = ['isEndCh3','isEndCh4','isEndCh5','isEndCh6','isEndCh7','isEndCh8','isEndCh9','isEnd'];
+  const END_FLAGS = ['isEndCh1','isEndCh2','isEndCh3','isEndCh4','isEndCh5','isEndCh6','isEndCh7','isEndCh8','isEndCh9','isEnd'];
   const MAX_STEPS = 40; // safety limit
 
   let steps = 0;
@@ -6323,6 +6366,7 @@ function startChapter7() {
 function beginChapter7() {
   document.getElementById('pre-ch7').style.display = 'none';
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
@@ -6337,6 +6381,7 @@ function beginChapter7() {
 // ── CH8 ENTRY ─────────────────────────────────────────────────
 function beginChapter8() {
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   sceneHistory = [];
@@ -6348,6 +6393,7 @@ function beginChapter8() {
 // ── CH9 ENTRY ─────────────────────────────────────────────────
 function beginChapter9() {
   const gs = document.getElementById('game-screen');
+  gs.scrollTop = 0;
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   sceneHistory = [];
