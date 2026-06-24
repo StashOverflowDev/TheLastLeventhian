@@ -153,7 +153,7 @@ body::before {
   font-family: 'Courier Prime', monospace;
   font-size: 0.6rem; letter-spacing: 0.45em; color: var(--violet-text);
   text-transform: uppercase; margin-bottom: 2rem;
-  opacity: 0; animation: fadeIn 1s ease 0.3s forwards;
+  opacity: 0; animation: fadeIn 1s ease forwards;
 }
 .interstitial-text {
   font-family: 'Crimson Text', Georgia, serif;
@@ -326,7 +326,7 @@ code {
 .scene-divider::before, .scene-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* CHOICES */
-.choices-block { margin-top: 2.8rem; opacity: 0; animation: fadeUp 0.7s ease 0.3s forwards; }
+.choices-block { margin-top: 2.8rem; opacity: 0; animation: fadeUp 0.7s ease forwards; }
 .choices-label {
   font-family: 'Courier Prime', monospace; font-size: 0.68rem;
   letter-spacing: 0.4em; color: var(--ink-dim); text-transform: uppercase; margin-bottom: 1rem;
@@ -727,7 +727,7 @@ html.font-large .ascii-art {
 </div>
 
 <!-- GAME HEADER (root-level fixed — above all panels) -->
-<div id="game-header" class="game-header" style="display:none;">
+<div id="game-header" class="game-header" style="visibility:hidden;">
   <div class="game-header-row1">
     <div class="game-header-title">The Last Leventhian<span id="header-chapter">, Ch. I</span></div>
     <button class="settings-btn" id="settings-btn" onclick="toggleSettingsPanel()" aria-label="Open settings" aria-expanded="false"><span class="settings-icon">⚙</span> Sys.Cfg</button>
@@ -5356,7 +5356,7 @@ function startGame() {
   gs.style.flexDirection = 'column';
   // Show root-level fixed header
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   cacheHeaderHeight();
   // Sync game-content padding-top to actual header height
   const gc = gs.querySelector('.game-content');
@@ -5514,6 +5514,39 @@ function renderNode(nodeId, undoMode, chapterStart) {
     ${choicesHTML}`;
   document.getElementById('inventory-display').innerHTML = invHTML;
 
+  // BUGFIX (residual mobile flicker — stale scrollTop vs height-collapse):
+  // scene-history just grew (append) and current-scene's content was just
+  // swapped wholesale, both synchronously, both changing total page height
+  // in the same tick. overflow-anchor is disabled on #game-screen, so nothing
+  // auto-compensates the leftover scrollTop from before this render, and the
+  // scroll-into-view correction below is deferred two animation frames on
+  // purpose (so the smooth-scroll keeps its full travel distance). That
+  // guarantees frame N (the very first paint after this click) renders at
+  // the OLD scrollTop against the NEW DOM. Usually harmless — the old
+  // position still falls inside the (now larger) #scene-history and shows
+  // legitimate, dimmed recap text. But whenever the new node is meaningfully
+  // shorter than the one just left (long narrative+choices -> a one-line
+  // "Continue"), the old scrollTop can land partway INTO the freshly
+  // swapped current-scene — whose .scene-block/.choices-block are still at
+  // opacity:0 on frame N — or past the end entirely (browser force-clamps
+  // to the new max, which can also land inside current-scene). Either way,
+  // frame N shows blank/transparent content exactly where the tapped button
+  // used to be, by sheer coincidence of the two nodes' relative heights —
+  // hence no discernible pattern.
+  // Fix: clamp (never pre-position) scrollTop so frame N can't paint inside
+  // the freshly swapped current-scene. Only engages when the unclamped
+  // value would otherwise reach that far; the common case (modest height
+  // change) is left completely untouched, so the smooth-scroll-down
+  // animation below keeps its normal distance and feel.
+  if (!chapterStart) {
+    const gsScreen = document.getElementById('game-screen');
+    const newCurrentSceneTopDoc = currentScene.getBoundingClientRect().top - gsScreen.getBoundingClientRect().top + gsScreen.scrollTop;
+    const safeTop = Math.max(0, newCurrentSceneTopDoc - headerHeight);
+    if (gsScreen.scrollTop > safeTop) {
+      gsScreen.scrollTop = safeTop;
+    }
+  }
+
   // Force reflow on each animated element so CSS animations always replay
   // reliably after innerHTML injection, regardless of browser paint timing.
   // Chapter heading selectors only exist on chapter-opening nodes — gate them
@@ -5589,9 +5622,9 @@ function showPostGame() {
   stopAllMusic();
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const animEls = [
-    { id: 'pg-label',  anim: 'fadeIn 1s ease 0.3s forwards',      startOpacity: '0' },
+    { id: 'pg-label',  anim: 'fadeIn 1s ease forwards',      startOpacity: '0' },
     { id: 'pg-ascii',  anim: 'fadeInDim 2s ease 0.5s forwards',    startOpacity: '0' },
     { id: 'pg-text',   anim: 'fadeIn 1.5s ease 0.8s forwards',     startOpacity: '0' },
     { id: 'pg-btn',    anim: 'fadeIn 1s ease 2.5s forwards',       startOpacity: '0' },
@@ -5614,7 +5647,7 @@ function showEndCard() {
   document.getElementById('game-screen').style.display = 'flex';
   document.getElementById('game-screen').style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   document.getElementById('scene-history').innerHTML = '';
   sceneHistoryRenderedCount = 0;
   document.getElementById('inventory-display').innerHTML = '';
@@ -5647,14 +5680,14 @@ function showEndCard() {
 function startChapter4() {
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const el = document.getElementById('pre-ch4');
   el.querySelectorAll('.interstitial-label, .interstitial-text, .interstitial-continue').forEach(child => {
     child.style.animation = 'none';
     child.style.opacity = '0';
     void child.offsetWidth;
   });
-  el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease 0.3s forwards';
+  el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease forwards';
   el.querySelector('.interstitial-text').style.animation = 'fadeIn 1.5s ease 0.8s forwards';
   el.querySelector('.interstitial-continue').style.animation = 'fadeIn 1s ease 2.5s forwards';
   el.scrollTop = 0;
@@ -5694,7 +5727,7 @@ function beginChapter4() {
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('scene-history').innerHTML = '';
@@ -5718,13 +5751,13 @@ function beginChapter5() {
 function showLeventhianInterstitial() {
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const el = document.getElementById('leventhian-interstitial');
   el.querySelectorAll('.lev-section').forEach((s, i) => {
     s.style.animation = 'none';
     s.style.opacity = '0';
     void s.offsetWidth;
-    s.style.animation = `fadeIn 1.4s ease ${0.4 + i * 0.9}s forwards`;
+    s.style.animation = `fadeIn 1.4s ease ${i * 0.9}s forwards`;
   });
   const btn = el.querySelector('.interstitial-continue');
   if (btn) {
@@ -5744,7 +5777,7 @@ function beginChapter6() {
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('scene-history').innerHTML = '';
@@ -5757,10 +5790,10 @@ function showPostCh6() {
   stopAllMusic();
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const el = document.getElementById('post-ch6');
   const animEls = [
-    { id:'pch6-label', anim:'fadeIn 1s ease 0.3s forwards' },
+    { id:'pch6-label', anim:'fadeIn 1s ease forwards' },
     { id:'pch6-text',  anim:'fadeIn 1.5s ease 0.8s forwards' },
     { id:'pch6-btn',   anim:'fadeIn 1s ease 2.5s forwards' },
   ];
@@ -5781,7 +5814,7 @@ function showCh6EndCard() {
   document.getElementById('game-screen').style.display = 'flex';
   document.getElementById('game-screen').style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   document.getElementById('scene-history').innerHTML = '';
   sceneHistoryRenderedCount = 0;
   document.getElementById('inventory-display').innerHTML = '';
@@ -5882,7 +5915,7 @@ function restartGame() {
   if (panel) { panel.classList.remove('open', 'visible'); settingsPanelOpen = false; }
   _twCancel();
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const ts = document.getElementById('title-screen');
   ts.scrollTop = 0;
   ts.style.display = 'flex';
@@ -6349,14 +6382,14 @@ document.addEventListener('DOMContentLoaded', loadPreferences);
 function startChapter7() {
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const el = document.getElementById('pre-ch7');
   el.querySelectorAll('.interstitial-label, .interstitial-text, .interstitial-continue').forEach(child => {
     child.style.animation = 'none';
     child.style.opacity = '0';
     void child.offsetWidth;
   });
-  el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease 0.3s forwards';
+  el.querySelector('.interstitial-label').style.animation = 'fadeIn 1s ease forwards';
   el.querySelector('.interstitial-text').style.animation = 'fadeIn 1.5s ease 0.8s forwards';
   el.querySelector('.interstitial-continue').style.animation = 'fadeIn 1s ease 2.5s forwards';
   el.scrollTop = 0;
@@ -6370,7 +6403,7 @@ function beginChapter7() {
   gs.style.display = 'flex';
   gs.style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   sceneHistory = [];
   sceneHistoryRenderedCount = 0;
   document.getElementById('scene-history').innerHTML = '';
@@ -6407,10 +6440,10 @@ function showCh9PostGame() {
   stopAllMusic();
   document.getElementById('game-screen').style.display = 'none';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'none';
+  if (ghdr) ghdr.style.visibility = 'hidden';
   const el = document.getElementById('post-ch9');
   const animEls = [
-    { id:'pch9-label', anim:'fadeIn 1s ease 0.3s forwards' },
+    { id:'pch9-label', anim:'fadeIn 1s ease forwards' },
     { id:'pch9-text',  anim:'fadeIn 1.5s ease 0.8s forwards' },
     { id:'pch9-btn',   anim:'fadeIn 1s ease 2.5s forwards' },
   ];
@@ -6431,7 +6464,7 @@ function showCh9EndCard() {
   document.getElementById('game-screen').style.display = 'flex';
   document.getElementById('game-screen').style.flexDirection = 'column';
   const ghdr = document.getElementById('game-header');
-  if (ghdr) ghdr.style.display = 'block';
+  if (ghdr) ghdr.style.visibility = 'visible';
   document.getElementById('scene-history').innerHTML = '';
   sceneHistoryRenderedCount = 0;
   document.getElementById('inventory-display').innerHTML = '';
